@@ -2,13 +2,16 @@
 import pygame
 import time
 import random
+import neural_network
+import numpy as np
 
 # Main Function
-def run_game():
+def run_game(model):
 	global change_to, direction, fruit_position, fruit_spawn, score
 	_init_globals()
 	while True:
-		_get_key()
+		_get_key() # Manual mode / Exit game
+		_get_next_move(model) # Automatic mode
 		_update_snake_food()
 		_show_score(1, white, 'times new roman', 12)
 		
@@ -31,8 +34,8 @@ def _init_globals():
 
 	# Window size (always a multiple of 10)
 	quantum = 5
-	window_x = 30 * quantum
-	window_y = 30 * quantum
+	window_x = 20 * quantum
+	window_y = 20 * quantum
 
 	# defining colors
 	black = pygame.Color(0, 0, 0)
@@ -90,6 +93,47 @@ def _get_key():
 	if change_to == 'RIGHT' and direction != 'LEFT':
 		direction = 'RIGHT'
 
+def _get_next_move(model):
+	global fruit_position, snake_position, window_x, window_y, direction, change_to
+
+	# Prepare and feed inputs to the NN
+	snake_x = snake_position[0] / window_x
+	snake_y = snake_position[1] / window_y
+	food_x = fruit_position[0] / window_x
+	food_y = fruit_position[0] / window_y
+
+	if direction == 'UP': #0
+		tmp = [1, 0, 0, 0]
+	if direction == 'DOWN': #1
+		tmp = [0, 1, 0, 0]
+	if direction == 'LEFT': #2
+		tmp = [0, 0, 1, 0]
+	if direction == 'RIGHT': #3
+		tmp = [0, 0, 0, 1]
+
+	nn_inp = [snake_x, snake_y, food_x, food_y] + tmp
+	print("get_next_move -> ", nn_inp)
+	# Get NN output and choose next snake direction
+	nn_out = neural_network.nn_get_output(model, nn_inp)
+	if nn_out ==1:
+		change_to = 'UP'
+	if nn_out ==2:
+		change_to = 'DOWN'
+	if nn_out ==3:
+		change_to = 'LEFT'
+	if nn_out ==4:
+		change_to = 'DOWN'
+
+	# Handle forbidden movements
+	if change_to == 'UP' and direction != 'DOWN':
+		direction = 'UP'
+	if change_to == 'DOWN' and direction != 'UP':
+		direction = 'DOWN'
+	if change_to == 'LEFT' and direction != 'RIGHT':
+		direction = 'LEFT'
+	if change_to == 'RIGHT' and direction != 'LEFT':
+		direction = 'RIGHT'
+
 def _update_snake_food():
 		global fruit_position, fruit_spawn, snake_body, snake_position, fruit_position, quantum, window_x, window_y, game_window, white, green, score
 
@@ -136,7 +180,7 @@ def _check_gameover(): # check if any violation occurred
 		pygame.display.flip()
 		
 		# after 2 seconds we will quit the program
-		time.sleep(2)
+		#time.sleep(2)
 
 	# Touched the wall
 	if (snake_position[0] < 0 or snake_position[0] > window_x-quantum) or snake_position[1] < 0 or snake_position[1] > window_y-quantum:
@@ -174,6 +218,8 @@ def _quit_game():
 	#quit()
 
 # ********** Executable code **********
-print("Start")
-a = run_game()
-print("Final score: " + str(a))
+while 1:
+	print("Start")
+	model = neural_network.nn_model()
+	score = run_game(model)
+	print("Final score: " + str(score))
