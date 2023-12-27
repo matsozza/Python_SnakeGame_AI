@@ -3,8 +3,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.datasets import mnist
-import tensorflow as tf
-import sklearn as sk
+#import tensorflow as tf
+#import sklearn as sk
 
 # Snake Game - Training Model
 # 8 inputs: Current snake position in table (2) + current food position in table (2) + Current direction (4)

@@ -1,14 +1,19 @@
 # importing libraries
+import os
 import pygame
 import time
 import random
 import neural_network
 import numpy as np
+from multiprocessing import Pool
 
 # Main Function
-def run_game(model):
+def run_game_w(args):
+    return run_game(*args)
+
+def run_game(model, pos):
 	global change_to, direction, fruit_position, fruit_spawn, score
-	_init_globals()
+	_init_globals(pos)
 	while True:
 		_get_key() # Manual mode / Exit game
 		_get_next_move(model) # Automatic mode
@@ -25,7 +30,7 @@ def run_game(model):
 		# Frame Per Second / Refresh Rate
 		fps.tick(snake_speed)
 
-def _init_globals():
+def _init_globals(pos):
 	global change_to, direction, fruit_position, fruit_spawn, score, snake_position, snake_body, game_window, black, white, red,green,blue,quantum, window_x,window_y,fps, snake_speed
 
 	# FPS (frames per second) controller
@@ -36,6 +41,8 @@ def _init_globals():
 	quantum = 5
 	window_x = 20 * quantum
 	window_y = 20 * quantum
+	screen_w = 1368
+	screen_h = 768
 
 	# defining colors
 	black = pygame.Color(0, 0, 0)
@@ -44,7 +51,10 @@ def _init_globals():
 	green = pygame.Color(0, 255, 0)
 	blue = pygame.Color(0, 0, 255)
 
-	# Initializing pygame
+	# Initializing pygame in correct position
+	y = np.floor(pos * window_x/ (screen_w*0.8)) * window_y
+	x = (pos * window_x) - (np.floor(pos* window_x/(screen_w*0.8)) * (screen_w*0.8))
+	os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
 	pygame.init()
 
 	# Initialize game window
@@ -218,8 +228,33 @@ def _quit_game():
 	#quit()
 
 # ********** Executable code **********
-while 1:
-	print("Start")
-	model = neural_network.nn_model()
-	score = run_game(model)
-	print("Final score: " + str(score))
+
+#while 1:
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+print("Start")
+model = neural_network.nn_model()
+
+if __name__ == '__main__':
+	with Pool(15) as p:
+		args_w =  [
+			(model, 0),
+			(model, 1),
+			(model, 2),
+			(model, 3),
+			(model, 4),
+			(model, 5),
+			(model, 6),
+			(model, 7),
+			(model, 8),
+			(model, 9),
+			(model, 10),
+			(model, 11),
+			(model, 12),
+			(model, 13)
+			]
+
+		scores = p.map(run_game_w, args_w)
+
+#score = run_game(model)
+#print("Final score: " + str(score))
