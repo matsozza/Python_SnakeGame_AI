@@ -2,7 +2,6 @@
 import pygame
 import time
 import random
-#import neural_network
 import numpy as np
 import os
 
@@ -20,8 +19,8 @@ class SnakeGame:
 
     # Window size (always a multiple of 10)
     WRES = 5
-    G_WIDTH = 25 * WRES
-    G_HEIGHT = 25 * WRES
+    G_WIDTH = 20 * WRES
+    G_HEIGHT = 20 * WRES
     S_WIDTH = 1368
     S_HEIGHT = 768
 
@@ -51,10 +50,10 @@ class SnakeGame:
         self.game_window = pygame.display.set_mode((SnakeGame.G_WIDTH, SnakeGame.G_HEIGHT))
 
         # defining snake default position
-        self.pos_snake = [10*SnakeGame.WRES, 5*SnakeGame.WRES]
+        self.pos_snake = [1*SnakeGame.WRES, 1*SnakeGame.WRES]
 
         # defining first 4 blocks of snake body
-        self.body_snake = [[10*SnakeGame.WRES, 5*SnakeGame.WRES], [9*SnakeGame.WRES, 5*SnakeGame.WRES]]
+        self.body_snake = [[1*SnakeGame.WRES, 1*SnakeGame.WRES], [0*SnakeGame.WRES, 1*SnakeGame.WRES]]
         
         # fruit position
         self.pos_food = [random.randrange(1, (SnakeGame.G_WIDTH//SnakeGame.WRES)) * SnakeGame.WRES, 
@@ -88,7 +87,31 @@ class SnakeGame:
             # Frame Per Second / Refresh Rate
             self.fps.tick(SnakeGame.G_SPD)
 
-        return [game_over, self.score] # Game-over + score
+        # Get game state
+        state = self.get_game_state()
+            
+
+        return [game_over, state, self.score] # Game-over + score
+    
+    def get_game_state(self):
+        food_up = 1 if self.pos_snake[1] > self.pos_food[1] else 0
+        food_dw = 1 if self.pos_snake[1] < self.pos_food[1] else 0
+        food_left = 1 if self.pos_snake[0] > self.pos_food[0] else 0
+        food_right = 1 if self.pos_snake[0] < self.pos_food[0] else 0
+
+        dir_up = 1 if self.direction == 'UP' else 0
+        dir_down = 1 if self.direction == 'DOWN' else 0
+        dir_left = 1 if self.direction == 'LEFT' else 0
+        dir_right = 1 if self.direction == 'RIGHT' else 0
+
+        wall_up = 1 if self.pos_snake[1] == 0 else 0
+        wall_down = 1 if self.pos_snake[1] == (SnakeGame.G_HEIGHT -  SnakeGame.WRES) else 0
+        wall_left = 1 if self.pos_snake[0] == 0 else 0
+        wall_right = 1 if self.pos_snake[0] == (SnakeGame.G_WIDTH -  SnakeGame.WRES) else 0   
+        
+        return [food_up, food_dw, food_left, food_right,
+                dir_up, dir_down, dir_left, dir_right,
+                wall_up, wall_down, wall_left, wall_right]
 
     def get_key(self):
         # If game not started, do not capture key

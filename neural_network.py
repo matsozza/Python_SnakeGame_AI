@@ -5,12 +5,12 @@ from keras.layers import Dense
 #import sklearn as sk
 
 # Snake Game - Training Model
-# 8 inputs: Current snake position in table (2) + current food position in table (2) + Current direction (4)
+# 12 inputs
 # 4 outputs: new direction
 def nn_model():
     model = Sequential()
-    model.add(Dense(units=16, activation='relu', input_shape=(8,)))
-    model.add(Dense(units=32, activation='relu', input_shape=(8,)))
+    model.add(Dense(units=128, activation='relu', input_shape=(12,)))
+    model.add(Dense(units=256, activation='relu'))
     model.add(Dense(units=4, activation='relu')) # UP DOWN LEFT RIGHT
     nn_mutate(model, 0.1, 0.5)
     return model
@@ -45,4 +45,5 @@ def nn_get_output(model, inputs):
     inputs = np.array(inputs).reshape([1, -1])
     output = model.predict(inputs, verbose = 0)
     #print("nn_get_output -> ", output, " --- ", np.argmax(output, axis = 1))
+    #print("Output: ", output)
     return np.argmax(output, axis = 1)
