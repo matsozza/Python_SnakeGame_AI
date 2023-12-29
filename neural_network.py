@@ -1,8 +1,6 @@
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.optimizers import Adam
-from keras.datasets import mnist
 #import tensorflow as tf
 #import sklearn as sk
 
@@ -13,8 +11,7 @@ def nn_model():
     model = Sequential()
     model.add(Dense(units=16, activation='relu', input_shape=(8,)))
     model.add(Dense(units=32, activation='relu', input_shape=(8,)))
-    model.add(Dense(units=4, activation='softmax')) # UP DOWN LEFT RIGHT
-    #model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.add(Dense(units=4, activation='relu')) # UP DOWN LEFT RIGHT
     nn_mutate(model, 0.1, 0.5)
     return model
 
@@ -47,5 +44,5 @@ def nn_mutate(nn_model, mutation_rate, mutation_size):
 def nn_get_output(model, inputs):
     inputs = np.array(inputs).reshape([1, -1])
     output = model.predict(inputs, verbose = 0)
-    print("nn_get_output -> ", output, " --- ", np.argmax(output, axis = 1))
+    #print("nn_get_output -> ", output, " --- ", np.argmax(output, axis = 1))
     return np.argmax(output, axis = 1)

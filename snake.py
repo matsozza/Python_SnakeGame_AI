@@ -1,11 +1,10 @@
 # importing libraries
-import os
 import pygame
 import time
 import random
 import neural_network
 import numpy as np
-from multiprocessing import Pool
+import os
 
 # Main Function
 def run_game_w(args):
@@ -21,7 +20,7 @@ def run_game(model, pos):
 		_show_score(1, white, 'times new roman', 12)
 		
 		if _check_gameover() == True:
-			_quit_game()
+			#_quit_game()
 			return score
 
 		# Refresh game screen
@@ -39,8 +38,8 @@ def _init_globals(pos):
 
 	# Window size (always a multiple of 10)
 	quantum = 5
-	window_x = 20 * quantum
-	window_y = 20 * quantum
+	window_x = 30 * quantum
+	window_y = 30 * quantum
 	screen_w = 1368
 	screen_h = 768
 
@@ -52,7 +51,7 @@ def _init_globals(pos):
 	blue = pygame.Color(0, 0, 255)
 
 	# Initializing pygame in correct position
-	y = np.floor(pos * window_x/ (screen_w*0.8)) * window_y
+	y = np.floor(pos * window_x/ (screen_w*0.8)) * window_y * 1.1
 	x = (pos * window_x) - (np.floor(pos* window_x/(screen_w*0.8)) * (screen_w*0.8))
 	os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
 	pygame.init()
@@ -122,7 +121,7 @@ def _get_next_move(model):
 		tmp = [0, 0, 0, 1]
 
 	nn_inp = [snake_x, snake_y, food_x, food_y] + tmp
-	print("get_next_move -> ", nn_inp)
+	#print("get_next_move -> ", nn_inp)
 	# Get NN output and choose next snake direction
 	nn_out = neural_network.nn_get_output(model, nn_inp)
 	if nn_out ==1:
@@ -190,7 +189,7 @@ def _check_gameover(): # check if any violation occurred
 		pygame.display.flip()
 		
 		# after 2 seconds we will quit the program
-		#time.sleep(2)
+		time.sleep(2)
 
 	# Touched the wall
 	if (snake_position[0] < 0 or snake_position[0] > window_x-quantum) or snake_position[1] < 0 or snake_position[1] > window_y-quantum:
@@ -226,35 +225,3 @@ def _quit_game():
 	
 	# quit the program
 	#quit()
-
-# ********** Executable code **********
-
-#while 1:
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-
-print("Start")
-model = neural_network.nn_model()
-
-if __name__ == '__main__':
-	with Pool(15) as p:
-		args_w =  [
-			(model, 0),
-			(model, 1),
-			(model, 2),
-			(model, 3),
-			(model, 4),
-			(model, 5),
-			(model, 6),
-			(model, 7),
-			(model, 8),
-			(model, 9),
-			(model, 10),
-			(model, 11),
-			(model, 12),
-			(model, 13)
-			]
-
-		scores = p.map(run_game_w, args_w)
-
-#score = run_game(model)
-#print("Final score: " + str(score))
