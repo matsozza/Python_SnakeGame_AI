@@ -14,25 +14,32 @@ def main():
     if __name__ == '__main__':
         print("----- START -----")
 
-        num_of_games = 10
+        num_of_games = 8
         num_of_gens = 10000
 
         # Start args for each model instance for each game
         args_w = []
         for idx in np.arange(num_of_games):
-            args_w.append((SnakeGame(0), neural_network.nn_model()))
+            args_w.append((SnakeGame(idx), neural_network.nn_model()))
         
-        idx_gen=0
-        for idx_gen in np.arange(num_of_gens):
+        i=0
+        while i < num_of_gens:
+
             # Run a pool with a number of games (generation)
-            results = np.zeros(num_of_games)
-            for idx_game in np.arange(num_of_games):                
+            results = []
+            with Pool(num_of_games) as p:
+                i=i+1
+                
                 print("----- GEN START -----")
                 # Use the pool's apply_async method to asynchronously execute tasks
-                score = game_instance(args_w[idx_game][0],args_w[idx_game][1])
+                async_results = [p.apply_async(game_instance, args) for args in args_w]
+
+                # Use the pool's wait method to wait for all processes to finish
+                #p.close()
+                #p.join()
 
                 # Get the results from the asynchronous tasks
-                results[idx_game] = score
+                results = [async_result.get() for async_result in async_results] # Array with scores
                 print("----- GEN END -----")
 
             # Get best score in prev. generation
@@ -44,7 +51,7 @@ def main():
             for idx in np.arange(num_of_games)[1:]:
                 args_w[idx] = (args_w[idx][0], keras.models.clone_model(args_w[0][1]) ) # Clone best model in 1...end
                 neural_network.nn_mutate(args_w[idx][1], 0.15, 0.15) # Mutate best model in 1...end
-            
+
         print("----- END -----") 
 
 def game_instance(game_obj, model_obj):

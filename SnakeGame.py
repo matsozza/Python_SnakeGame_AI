@@ -15,7 +15,7 @@ class SnakeGame:
     GREEN = pygame.Color(0, 255, 0)
     BLUE = pygame.Color(0, 0, 255)
 
-    G_SPD = 10 # game speed up to 10fps
+    G_SPD = 1000 # game speed up to 10fps
 
     # Window size (always a multiple of 10)
     WRES = 5
@@ -25,7 +25,7 @@ class SnakeGame:
     S_HEIGHT = 768
 
     AUTO_RESTART = False
-    WAIT_TRANS = 1
+    WAIT_TRANS = 0
 #endregion
 
 #region ----- Methods -----
@@ -89,8 +89,6 @@ class SnakeGame:
 
         # Get game state
         state = self.get_game_state()
-            
-
         return [game_over, state, self.score] # Game-over + score
     
     def get_game_state(self):
