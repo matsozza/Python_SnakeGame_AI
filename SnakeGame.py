@@ -19,8 +19,8 @@ class SnakeGame:
 
     # Window size (always a multiple of 10)
     WRES = 5
-    G_WIDTH = 20 * WRES
-    G_HEIGHT = 20 * WRES
+    G_WIDTH = 16 * WRES
+    G_HEIGHT = 16 * WRES
     S_WIDTH = 1368
     S_HEIGHT = 768
 
