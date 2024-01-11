@@ -15,7 +15,7 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 3 # game speed up to 10fps
+    G_SPD = 24 # game speed up to 10fps
 
     # Window size (always a multiple of 10)
     WRES = 4
@@ -86,8 +86,6 @@ class SnakeBoard:
     def _calc_boardsize(self):
         self.ncols = int(np.ceil(np.sqrt(self.num_games)))
         self.nrows = int(np.round(np.sqrt(self.num_games)))
-
-
 
     def _calc_gamepos(self, num_game):
         n=0        
