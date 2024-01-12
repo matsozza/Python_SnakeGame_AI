@@ -15,10 +15,10 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 24 # game speed up to 10fps
+    G_SPD = 2000 # game speed up to 10fps
 
     # Window size (always a multiple of 10)
-    WRES = 4
+    WRES = 2
     G_WIDTH = 16 * WRES
     G_HEIGHT = 16 * WRES
     S_WIDTH = 1920
@@ -42,7 +42,7 @@ class SnakeBoard:
 
         # Initialize game window
         pygame.display.set_caption('Snake Game')
-        self._calc_boardsize()
+        self._calc_boardsize_screen()
         self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.G_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.G_HEIGHT+2*SnakeBoard.BORDER) ))
 
     def quit_board(self):
@@ -54,7 +54,7 @@ class SnakeBoard:
 
     def update_board_elements(self, s_games):
         for num_game, game in enumerate(s_games):
-            [ox,oy]= self._calc_gamepos(num_game)
+            [ox,oy]= self._calc_gamepos_screen(num_game)
             
             # Draw border
             pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.BORDER, SnakeBoard.G_WIDTH+2*SnakeBoard.BORDER))
@@ -83,11 +83,11 @@ class SnakeBoard:
         # Frame Per Second / Refresh Rate
         self.fps.tick(SnakeBoard.G_SPD)
 
-    def _calc_boardsize(self):
+    def _calc_boardsize_screen(self):
         self.ncols = int(np.ceil(np.sqrt(self.num_games)))
         self.nrows = int(np.round(np.sqrt(self.num_games)))
 
-    def _calc_gamepos(self, num_game):
+    def _calc_gamepos_screen(self, num_game):
         n=0        
         for x in range(self.ncols):
             for y in range(self.nrows):
@@ -95,9 +95,7 @@ class SnakeBoard:
                     game_x= x * (SnakeBoard.G_WIDTH + SnakeBoard.BORDER)
                     game_y= y * (SnakeBoard.G_HEIGHT + SnakeBoard.BORDER)
                     return [game_x, game_y]
-                
                 n=n+1
-        
         return -1
 
     #endregion
