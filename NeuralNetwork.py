@@ -79,7 +79,7 @@ class NeuralNetwork:
         #print("Input:", input)
         l0 = inputs @ self.weights[0]
         l0 = l0 + self.biases[0]
-        l0 = NeuralNetwork.softmax(l0)
+        l0 = NeuralNetwork.tanh(l0)
         #print("l0:", l0)
 
         l1 = l0 @ self.weights[1]

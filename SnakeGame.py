@@ -84,20 +84,19 @@ class SnakeGame:
         elif self.direction == "DOWN":
             dx = -dy_std
             dy = dx_std
-
         food_angle = math.atan2(dy,dx) / (math.pi)
 
         # ----- Calc hazards distance -----
         # Distance to walls 
-        rel_pos_x = (self.snake_board.G_WIDTH - self.pos_snake[0]) / self.snake_board.G_WIDTH
-        rel_pos_y = (self.snake_board.G_HEIGHT - self.pos_snake[1]) / self.snake_board.G_HEIGHT
+        rel_pos_x = (self.snake_board.G_WIDTH - self.snake_board.WRES - self.pos_snake[0]) / (self.snake_board.G_WIDTH-self.snake_board.WRES)
+        rel_pos_y = (self.snake_board.G_HEIGHT - self.snake_board.WRES - self.pos_snake[1]) / (self.snake_board.G_HEIGHT-self.snake_board.WRES)
 
         if self.direction == "RIGHT":
             rel_pos_ahead_wall = rel_pos_x
-            rel_pos_lat_wall = (15/16)-rel_pos_y
+            rel_pos_lat_wall = 1-rel_pos_y
         elif self.direction == "UP":
             rel_pos_ahead_wall = 1-rel_pos_y
-            rel_pos_lat_wall = (15/16)- rel_pos_x
+            rel_pos_lat_wall = 1-rel_pos_x
         elif self.direction == "LEFT":
             rel_pos_ahead_wall = 1-rel_pos_x
             rel_pos_lat_wall = rel_pos_y
@@ -105,6 +104,7 @@ class SnakeGame:
             rel_pos_ahead_wall = rel_pos_y
             rel_pos_lat_wall = rel_pos_x
 
+        #print("X / Y:", self.pos_snake[0], "  -  ", self.pos_snake[1])
         print("AHEAD: ", rel_pos_ahead_wall, " - LAT: ", rel_pos_lat_wall)
 
         # Distance to body
