@@ -29,10 +29,6 @@ class SnakeGame:
         return [self.game_over, self.score] # Game-over + score
     
     def get_key(self):
-        # If game not started, do not capture key
-        if self.start_game == 1:
-            return
-
         # handling key events
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -90,7 +86,54 @@ class SnakeGame:
             dy = dx_std
 
         food_angle = math.atan2(dy,dx) / (math.pi)
-        return [food_angle]
+
+        # ----- Calc hazards distance -----
+        # Distance to walls 
+        rel_pos_x = (self.snake_board.G_WIDTH - self.pos_snake[0]) / self.snake_board.G_WIDTH
+        rel_pos_y = (self.snake_board.G_HEIGHT - self.pos_snake[1]) / self.snake_board.G_HEIGHT
+
+        if self.direction == "RIGHT":
+            rel_pos_ahead_wall = rel_pos_x
+            rel_pos_lat_wall = (15/16)-rel_pos_y
+        elif self.direction == "UP":
+            rel_pos_ahead_wall = 1-rel_pos_y
+            rel_pos_lat_wall = (15/16)- rel_pos_x
+        elif self.direction == "LEFT":
+            rel_pos_ahead_wall = 1-rel_pos_x
+            rel_pos_lat_wall = rel_pos_y
+        elif self.direction == "DOWN":
+            rel_pos_ahead_wall = rel_pos_y
+            rel_pos_lat_wall = rel_pos_x
+
+        print("AHEAD: ", rel_pos_ahead_wall, " - LAT: ", rel_pos_lat_wall)
+
+        # Distance to body
+        d_body_x = [self.snake_board.G_WIDTH, -1*self.snake_board.G_WIDTH]
+        d_body_y = [self.snake_board.G_WIDTH, -1*self.snake_board.G_WIDTH]
+        for block in self.body_snake[1:]:
+            if block[0] == self.pos_snake[0]:
+                d_body_y.append(block[1] - self.pos_snake[1])
+            if block[1] == self.pos_snake[1]:
+                d_body_x.append(block[0] - self.pos_snake[0])
+
+        if self.direction == "RIGHT":
+            d_ahead = min([i for i in d_body_x if i > 0])
+            d_lat = min(d_body_y, key=lambda x: abs(x))
+        elif self.direction == "UP":
+            d_ahead = min([i for i in d_body_y if i < 0]) 
+            d_lat = min(d_body_x, key=lambda x: abs(x))       
+        elif self.direction == "LEFT":
+            d_ahead = min([i for i in d_body_x if i < 0])
+            d_lat = -1 * min(d_body_y, key=lambda x: abs(x))
+        elif self.direction == "DOWN":
+            d_ahead = min([i for i in d_body_y if i > 0])
+            d_lat = -1 * min(d_body_x, key=lambda x: abs(x))
+
+        rel_pos_ahead_body = d_ahead / self.snake_board.G_WIDTH
+        rel_pos_lat_body = d_lat / self.snake_board.G_WIDTH
+        #print("AHEAD: ", rel_pos_ahead_body, " - LAT: ", rel_pos_lat_body)
+
+        return [food_angle, rel_pos_ahead_wall, rel_pos_lat_wall, rel_pos_ahead_body, rel_pos_lat_body]
 
     def _update_game_state(self, req_dir):
         # Validate new requested direction - HEAD BASED
