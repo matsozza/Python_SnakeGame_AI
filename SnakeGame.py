@@ -105,7 +105,7 @@ class SnakeGame:
             rel_pos_lat_wall = rel_pos_x
 
         #print("X / Y:", self.pos_snake[0], "  -  ", self.pos_snake[1])
-        print("AHEAD: ", rel_pos_ahead_wall, " - LAT: ", rel_pos_lat_wall)
+        #print("AHEAD: ", rel_pos_ahead_wall, " - LAT: ", rel_pos_lat_wall)
 
         # Distance to body
         d_body_x = [self.snake_board.G_WIDTH, -1*self.snake_board.G_WIDTH]
@@ -180,8 +180,18 @@ class SnakeGame:
         self.body_snake.insert(0, list(self.pos_snake))
         if self.pos_snake[0] == self.pos_food[0] and self.pos_snake[1] == self.pos_food[1]:
             self.score += 1 # grow snake
-            self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH//self.snake_board.WRES)) * self.snake_board.WRES,
-                                random.randrange(1, (self.snake_board.G_HEIGHT//self.snake_board.WRES)) * self.snake_board.WRES] #create new food
+            
+            while True: # Randomize until food doesn't overlap snake's body
+                self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH//self.snake_board.WRES)) * self.snake_board.WRES,
+                                    random.randrange(1, (self.snake_board.G_HEIGHT//self.snake_board.WRES)) * self.snake_board.WRES] #create new food
+                non_overlap = 1
+                for block in self.body_snake:
+                    if block[0] == self.pos_food[0] and block[1] == self.pos_food[1]:
+                        non_overlap = 0
+                        break
+                if non_overlap == 1:
+                    break
+
             self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)/(self.snake_board.WRES)**2
         else:
             self.body_snake.pop() #just move snake
@@ -198,7 +208,7 @@ class SnakeGame:
                 return True
 
         if self.timeout <= 0:
-            print("TIMEOUT")
+            #print("TIMEOUT")
             return True
         
         return False # No violation

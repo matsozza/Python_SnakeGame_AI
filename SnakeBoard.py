@@ -15,10 +15,10 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 3 # game speed up to 10fps
+    G_SPD = 5000 # game speed up to 10fps
 
     # Window size (always a multiple of 10)
-    WRES = 10
+    WRES = 2
     G_WIDTH = 16 * WRES
     G_HEIGHT = 16 * WRES
     S_WIDTH = 1920
