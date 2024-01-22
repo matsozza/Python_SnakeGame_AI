@@ -87,10 +87,10 @@ class NeuralNetwork:
         l1 = NeuralNetwork.relu(l1)
         #print("l1:", l1)
         return np.argmax(l1, axis = 0)
-    
-    def clone(self,neural_network):
-        self.weights = neural_network.weights
-        self.biases = neural_network.biases
+
+    def set_weights_biases(self,weights,biases):
+        self.weights = weights
+        self.biases = biases
 
     def __copy__(self):
         new_obj = self.__class__()
