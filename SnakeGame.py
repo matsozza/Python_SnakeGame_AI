@@ -26,7 +26,7 @@ class SnakeGame:
         self.game_over = self._check_gameover()
 
         # Return game score and status
-        return [self.game_over, self.score] # Game-over + score
+        return [self.game_over, self.w_score, self.score] # Game-over + score
     
     def get_key(self):
         # handling key events
@@ -62,6 +62,7 @@ class SnakeGame:
         # setting default snake direction towards right
         self.direction = 'RIGHT'
         self.score = 0 # initial score
+        self.w_score = 0 # weighed score
         self.game_over = False
         self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)/(self.snake_board.WRES)**2
 
@@ -180,6 +181,7 @@ class SnakeGame:
         self.body_snake.insert(0, list(self.pos_snake))
         if self.pos_snake[0] == self.pos_food[0] and self.pos_snake[1] == self.pos_food[1]:
             self.score += 1 # grow snake
+            self.w_score += self.timeout # received remaining time as energy
             
             while True: # Randomize until food doesn't overlap snake's body
                 self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH//self.snake_board.WRES)) * self.snake_board.WRES,
@@ -195,7 +197,7 @@ class SnakeGame:
             self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)/(self.snake_board.WRES)**2
         else:
             self.body_snake.pop() #just move snake
-            self.timeout = self.timeout -1
+            self.timeout = self.timeout - 1
 
     def _check_gameover(self): # check if any violation ocurred
         # Touched the wall

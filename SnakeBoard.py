@@ -19,8 +19,8 @@ class SnakeBoard:
 
     # Window size (always a multiple of 10)
     WRES = 2
-    G_WIDTH = 16 * WRES
-    G_HEIGHT = 16 * WRES
+    G_WIDTH = 10 * WRES
+    G_HEIGHT = 10 * WRES
     S_WIDTH = 1920
     S_HEIGHT = 1080
     BORDER=1
