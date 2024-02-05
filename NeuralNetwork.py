@@ -4,7 +4,7 @@ import copy
 
 class NeuralNetwork:
     size_input_layer = 5
-    size_hidden_layer = 12
+    size_hidden_layer = 6
     size_output_layer = 3
 
     def __init__(self) -> None:
