@@ -15,15 +15,18 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 5000 # game speed up to 10fps
+    G_SPD = 5 # game speed up to 10fps
 
-    # Window size (always a multiple of 10)
-    WRES = 2
-    G_WIDTH = 10 * WRES
-    G_HEIGHT = 10 * WRES
+    # Window size
+    WRES = 10
+    G_WIDTH = 10
+    G_HEIGHT = 10
     S_WIDTH = 1920
     S_HEIGHT = 1080
-    BORDER=1
+    BORDER = 1
+
+    W_WIDTH = G_WIDTH * WRES
+    W_HEIGHT = G_HEIGHT * WRES
 #endregion
 
 #region ----- Methods -----
@@ -43,7 +46,7 @@ class SnakeBoard:
         # Initialize game window
         pygame.display.set_caption('Snake Game')
         self._calc_boardsize_screen()
-        self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.G_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.G_HEIGHT+2*SnakeBoard.BORDER) ))
+        self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.W_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER) ))
 
     def quit_board(self):
         pygame.quit()
@@ -57,25 +60,33 @@ class SnakeBoard:
             [ox,oy]= self._calc_gamepos_screen(num_game)
             
             # Draw border
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.BORDER, SnakeBoard.G_WIDTH+2*SnakeBoard.BORDER))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(SnakeBoard.G_HEIGHT+SnakeBoard.BORDER+ox,0+oy, SnakeBoard.BORDER, SnakeBoard.G_WIDTH+2*SnakeBoard.BORDER))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.G_HEIGHT+2*SnakeBoard.BORDER,SnakeBoard.BORDER ))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, SnakeBoard.G_WIDTH + SnakeBoard.BORDER+oy,  SnakeBoard.G_HEIGHT+ 2*SnakeBoard.BORDER, SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.BORDER, SnakeBoard.W_WIDTH+2*SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(SnakeBoard.W_HEIGHT+SnakeBoard.BORDER+ox,0+oy, SnakeBoard.BORDER, SnakeBoard.W_WIDTH+2*SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER,SnakeBoard.BORDER ))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, SnakeBoard.W_WIDTH + SnakeBoard.BORDER+oy,  SnakeBoard.W_HEIGHT+ 2*SnakeBoard.BORDER, SnakeBoard.BORDER))
             
             # Draw snake
             for pos in game.body_snake: 
+                # Magnify according board window resolution
+                pos_res = np.zeros(2)
+                pos_res[0] = pos[0] * SnakeBoard.WRES
+                pos_res[1] = pos[1] * SnakeBoard.WRES
+
                 # Don't draw out of the board
-                pos[0] = 0 if pos[0] < 0 else pos[0] 
-                pos[0] = SnakeBoard.G_WIDTH - SnakeBoard.WRES if pos[0] > SnakeBoard.G_WIDTH - SnakeBoard.WRES else pos[0] 
-                pos[1] = 0 if pos[1] < 0 else pos[1] 
-                pos[1] = SnakeBoard.G_HEIGHT - SnakeBoard.WRES if pos[1] > SnakeBoard.G_HEIGHT - SnakeBoard.WRES else pos[1] 
+                pos_res[0] = 0 if pos_res[0] < 0 else pos_res[0] 
+                pos_res[0] = SnakeBoard.W_WIDTH - SnakeBoard.WRES if pos_res[0] > SnakeBoard.W_WIDTH - SnakeBoard.WRES else pos_res[0] 
+                pos_res[1] = 0 if pos_res[1] < 0 else pos_res[1] 
+                pos_res[1] = SnakeBoard.W_HEIGHT - SnakeBoard.WRES if pos_res[1] > SnakeBoard.W_HEIGHT - SnakeBoard.WRES else pos_res[1] 
 
                 scolor = SnakeBoard.RED if game.game_over == True else SnakeBoard.GREEN
-                pygame.draw.rect(self.game_window, scolor, pygame.Rect(pos[0]+ SnakeBoard.BORDER + ox, pos[1]+ SnakeBoard.BORDER + oy, SnakeBoard.WRES, SnakeBoard.WRES))
+                pygame.draw.rect(self.game_window, scolor, pygame.Rect(pos_res[0]  + SnakeBoard.BORDER + ox, pos_res[1]  + SnakeBoard.BORDER + oy, SnakeBoard.WRES, SnakeBoard.WRES))
             
             # Draw food
+            pos_food = np.zeros(2)
+            pos_food[0] = game.pos_food[0] * SnakeBoard.WRES
+            pos_food[1] = game.pos_food[1] * SnakeBoard.WRES
             scolor = SnakeBoard.GRAY if game.game_over == True else SnakeBoard.WHITE
-            pygame.draw.rect(self.game_window, scolor, pygame.Rect(game.pos_food[0]+ SnakeBoard.BORDER+ox, game.pos_food[1]+ SnakeBoard.BORDER+oy, SnakeBoard.WRES, SnakeBoard.WRES))
+            pygame.draw.rect(self.game_window, scolor, pygame.Rect(pos_food[0]+ SnakeBoard.BORDER+ox, pos_food[1]+ SnakeBoard.BORDER+oy, SnakeBoard.WRES, SnakeBoard.WRES))
             
         # Refresh game screen
         pygame.display.update()
@@ -92,8 +103,8 @@ class SnakeBoard:
         for x in range(self.ncols):
             for y in range(self.nrows):
                 if num_game==n:
-                    game_x= x * (SnakeBoard.G_WIDTH + SnakeBoard.BORDER)
-                    game_y= y * (SnakeBoard.G_HEIGHT + SnakeBoard.BORDER)
+                    game_x= x * (SnakeBoard.W_WIDTH + SnakeBoard.BORDER)
+                    game_y= y * (SnakeBoard.W_HEIGHT + SnakeBoard.BORDER)
                     return [game_x, game_y]
                 n=n+1
         return -1

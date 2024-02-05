@@ -49,21 +49,20 @@ class SnakeGame:
 
     def _init_game(self):
         # defining snake initial position
-        self.pos_snake = [2*self.snake_board.WRES, 2*self.snake_board.WRES]
+        self.pos_snake = [2,2]
 
         # defining first blocks of snake body
-        self.body_snake = [[2*self.snake_board.WRES, 2*self.snake_board.WRES], [1*self.snake_board.WRES, 2*self.snake_board.WRES]]
+        self.body_snake = [[2, 2], [1, 2]]
         
         # fruit position
-        self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH//self.snake_board.WRES)) * self.snake_board.WRES, 
-                        random.randrange(1, (self.snake_board.G_HEIGHT//self.snake_board.WRES)) * self.snake_board.WRES]
+        self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)), random.randrange(1, (self.snake_board.G_HEIGHT))]
 
         # setting default snake direction towards right
         self.direction = 'RIGHT'
         self.score = 0 # initial score
         self.w_score = 0 # weighed score
         self.game_over = False
-        self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)/(self.snake_board.WRES)**2
+        self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
 
     def get_game_state(self):
         # ----- Calc food angle regarding snake's head and current direction -----
@@ -88,8 +87,8 @@ class SnakeGame:
 
         # ----- Calc hazards distance -----
         # Distance to walls 
-        rel_pos_x = (self.snake_board.G_WIDTH - self.snake_board.WRES - self.pos_snake[0]) / (self.snake_board.G_WIDTH-self.snake_board.WRES)
-        rel_pos_y = (self.snake_board.G_HEIGHT - self.snake_board.WRES - self.pos_snake[1]) / (self.snake_board.G_HEIGHT-self.snake_board.WRES)
+        rel_pos_x = (self.snake_board.G_WIDTH - 1 - self.pos_snake[0]) / (self.snake_board.G_WIDTH-1)
+        rel_pos_y = (self.snake_board.G_HEIGHT- 1 - self.pos_snake[1]) / (self.snake_board.G_HEIGHT-1)
 
         if self.direction == "RIGHT":
             rel_pos_ahead_wall = rel_pos_x
@@ -168,13 +167,13 @@ class SnakeGame:
         
         # Calculate new snake position
         if self.direction == 'UP':
-            self.pos_snake[1] -= self.snake_board.WRES
+            self.pos_snake[1] -= 1
         if self.direction == 'DOWN':
-            self.pos_snake[1] += self.snake_board.WRES
+            self.pos_snake[1] += 1
         if self.direction == 'LEFT':
-            self.pos_snake[0] -= self.snake_board.WRES
+            self.pos_snake[0] -= 1
         if self.direction == 'RIGHT':
-            self.pos_snake[0] += self.snake_board.WRES
+            self.pos_snake[0] += 1
 
         # Check if snake shall eat the food
         self.body_snake.insert(0, list(self.pos_snake))
@@ -183,8 +182,7 @@ class SnakeGame:
             self.w_score += self.timeout # received remaining time as energy
             
             while True: # Randomize until food doesn't overlap snake's body
-                self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH//self.snake_board.WRES)) * self.snake_board.WRES,
-                                    random.randrange(1, (self.snake_board.G_HEIGHT//self.snake_board.WRES)) * self.snake_board.WRES] #create new food
+                self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)) , random.randrange(1, (self.snake_board.G_HEIGHT)) ] #create new food
                 non_overlap = 1
                 for block in self.body_snake:
                     if block[0] == self.pos_food[0] and block[1] == self.pos_food[1]:
@@ -193,14 +191,14 @@ class SnakeGame:
                 if non_overlap == 1:
                     break
 
-            self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)/(self.snake_board.WRES)**2
+            self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
         else:
             self.body_snake.pop() #just move snake
             self.timeout = self.timeout - 1
 
     def _check_gameover(self): # check if any violation ocurred
         # Touched the wall
-        if (self.pos_snake[0] < 0 or self.pos_snake[0] > self.snake_board.G_WIDTH-self.snake_board.WRES) or self.pos_snake[1] < 0 or self.pos_snake[1] > self.snake_board.G_HEIGHT-self.snake_board.WRES:
+        if (self.pos_snake[0] < 0 or self.pos_snake[0] > self.snake_board.G_WIDTH-1) or self.pos_snake[1] < 0 or self.pos_snake[1] > self.snake_board.G_HEIGHT-1:
             return True
 
         # Touched the snake body
