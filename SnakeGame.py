@@ -1,7 +1,6 @@
 # importing libraries
 import pygame
 import random
-import numpy as np
 import math
 
 class SnakeGame:
