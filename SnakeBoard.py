@@ -15,14 +15,14 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 5 # game speed up to 10fps
+    G_SPD = 50000 # game speed up to 10fps
 
     # Window size
-    WRES = 10
-    G_WIDTH = 10
-    G_HEIGHT = 10
-    S_WIDTH = 1920
-    S_HEIGHT = 1080
+    WRES = 2
+    G_WIDTH = 5
+    G_HEIGHT = 5
+    S_WIDTH = 1024
+    S_HEIGHT = 768
     BORDER = 1
 
     W_WIDTH = G_WIDTH * WRES
@@ -66,7 +66,7 @@ class SnakeBoard:
             pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, SnakeBoard.W_WIDTH + SnakeBoard.BORDER+oy,  SnakeBoard.W_HEIGHT+ 2*SnakeBoard.BORDER, SnakeBoard.BORDER))
             
             # Draw snake
-            for pos in game.body_snake: 
+            for idx, pos in enumerate(game.body_snake): 
                 # Magnify according board window resolution
                 pos_res = np.zeros(2)
                 pos_res[0] = pos[0] * SnakeBoard.WRES
@@ -78,7 +78,15 @@ class SnakeBoard:
                 pos_res[1] = 0 if pos_res[1] < 0 else pos_res[1] 
                 pos_res[1] = SnakeBoard.W_HEIGHT - SnakeBoard.WRES if pos_res[1] > SnakeBoard.W_HEIGHT - SnakeBoard.WRES else pos_res[1] 
 
-                scolor = SnakeBoard.RED if game.game_over == True else SnakeBoard.GREEN
+                # Draw object
+                if game.game_over == True:
+                    scolor = SnakeBoard.RED  
+                else:
+                    r = (SnakeBoard.GREEN.r * (len(game.body_snake) - (idx+1)) +  SnakeBoard.YELLOW.r * (idx+1))/ len(game.body_snake)
+                    g = (SnakeBoard.GREEN.g * (len(game.body_snake) - (idx+1)) +  SnakeBoard.YELLOW.g * (idx+1))/ len(game.body_snake)
+                    b = (SnakeBoard.GREEN.b * (len(game.body_snake) - (idx+1)) +  SnakeBoard.YELLOW.b * (idx+1))/ len(game.body_snake)
+                    scolor = pygame.Color(int(r),int(g),int(b),255)
+                    
                 pygame.draw.rect(self.game_window, scolor, pygame.Rect(pos_res[0]  + SnakeBoard.BORDER + ox, pos_res[1]  + SnakeBoard.BORDER + oy, SnakeBoard.WRES, SnakeBoard.WRES))
             
             # Draw food
@@ -88,6 +96,12 @@ class SnakeBoard:
             scolor = SnakeBoard.GRAY if game.game_over == True else SnakeBoard.WHITE
             pygame.draw.rect(self.game_window, scolor, pygame.Rect(pos_food[0]+ SnakeBoard.BORDER+ox, pos_food[1]+ SnakeBoard.BORDER+oy, SnakeBoard.WRES, SnakeBoard.WRES))
             
+            # Show score
+            #score_font = pygame.font.SysFont('times new roman', 12)
+            #score_surface = score_font.render('Score : ' + str(self.game.score), True, (255,255,255))
+            #score_rect = score_surface.get_rect()
+            #self.snake_board.blit(score_surface, score_rect) # displaying text
+
         # Refresh game screen
         pygame.display.update()
 

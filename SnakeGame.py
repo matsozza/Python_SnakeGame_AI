@@ -11,7 +11,7 @@ class SnakeGame:
 #region ----- Methods -----
 
     def __init__(self, snake_board):
-        print("SnakeGame instance created.")
+        #print("SnakeGame instance created.")
         self.snake_board = snake_board
         self._init_game()
 
@@ -19,7 +19,6 @@ class SnakeGame:
         # Run game and update state / score if not game over
         if self.game_over == False:
             self._update_game_state(req_dir)
-        #self._show_updated_score()
 
         # Check for game-over condition
         self.game_over = self._check_gameover()
@@ -211,22 +210,5 @@ class SnakeGame:
             return True
         
         return False # No violation
-    
-    """
-    def _show_updated_score(self): # displaying Score function
-        # creating font object score_font
-        score_font = pygame.font.SysFont('times new roman', 12)
-        
-        # create the display surface object 
-        # score_surface
-        score_surface = score_font.render('Score : ' + str(self.score), True, (255,255,255))
-        
-        # create a rectangular object for the text
-        # surface object
-        score_rect = score_surface.get_rect()
-        
-        # displaying text
-        self.game_window.blit(score_surface, score_rect)
-    """
     
     #endregion
