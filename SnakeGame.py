@@ -14,6 +14,23 @@ class SnakeGame:
         #print("SnakeGame instance created.")
         self.snake_board = snake_board
         self._init_game()
+    
+    def _init_game(self):
+        # defining snake initial position
+        self.pos_snake = [2,2]
+
+        # defining first blocks of snake body
+        self.body_snake = [[2, 2], [1, 2]]
+        
+        # fruit position
+        self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)), random.randrange(1, (self.snake_board.G_HEIGHT))]
+
+        # setting default snake direction towards right
+        self.direction = 'RIGHT'
+        self.score = 0 # initial score
+        self.w_score = 0 # weighed score
+        self.game_over = False
+        self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
 
     def step_game(self, req_dir = "IDLE"):
         # Run game and update state / score if not game over
@@ -45,23 +62,6 @@ class SnakeGame:
 
     def reset_game(self):
         self._init_game()
-
-    def _init_game(self):
-        # defining snake initial position
-        self.pos_snake = [2,2]
-
-        # defining first blocks of snake body
-        self.body_snake = [[2, 2], [1, 2]]
-        
-        # fruit position
-        self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)), random.randrange(1, (self.snake_board.G_HEIGHT))]
-
-        # setting default snake direction towards right
-        self.direction = 'RIGHT'
-        self.score = 0 # initial score
-        self.w_score = 0 # weighed score
-        self.game_over = False
-        self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
 
     def get_game_state(self):
         # ----- Calc food angle regarding snake's head and current direction -----
@@ -178,10 +178,12 @@ class SnakeGame:
         self.body_snake.insert(0, list(self.pos_snake))
         if self.pos_snake[0] == self.pos_food[0] and self.pos_snake[1] == self.pos_food[1]:
             self.score += 1 # grow snake
-            self.w_score += self.timeout # received remaining time as energy
+            self.w_score += self.timeout # receive remaining time as energy
             
-            while True: # Randomize until food doesn't overlap snake's body
-                self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)) , random.randrange(1, (self.snake_board.G_HEIGHT)) ] #create new food
+            # Randomize until food doesn't overlap snake's body
+            idxFoodLoop = 0
+            while True: 
+                self.pos_food = [random.randrange(0, (self.snake_board.G_WIDTH)) , random.randrange(0, (self.snake_board.G_HEIGHT)) ] #create new food
                 non_overlap = 1
                 for block in self.body_snake:
                     if block[0] == self.pos_food[0] and block[1] == self.pos_food[1]:
@@ -189,6 +191,9 @@ class SnakeGame:
                         break
                 if non_overlap == 1:
                     break
+                idxFoodLoop= idxFoodLoop+1
+                if idxFoodLoop > 10:
+                    print("Food loop taking too long - ", idxFoodLoop)
 
             self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
         else:
@@ -204,6 +209,11 @@ class SnakeGame:
         for block in self.body_snake[1:]:
             if self.pos_snake[0] == block[0] and self.pos_snake[1] == block[1]:
                 return True
+            
+        # Snake achieved maximum size possible
+        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 3:
+            print(" Game over - Max size achieved!")
+            return True
 
         if self.timeout <= 0:
             #print("TIMEOUT")

@@ -15,7 +15,7 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 50000 # game speed up to 10fps
+    G_SPD = 5000000 # game speed up to 10fps
 
     # Window size
     WRES = 2
@@ -40,7 +40,7 @@ class SnakeBoard:
         self.fps = pygame.time.Clock()      
         
         # Initializing pygame window in correct position
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,0)
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (2,2)
         pygame.init()
 
         # Initialize game window
