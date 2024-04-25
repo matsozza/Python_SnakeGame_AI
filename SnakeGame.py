@@ -83,55 +83,60 @@ class SnakeGame:
             dx = -dy_std
             dy = dx_std
         food_angle = math.atan2(dy,dx) / (math.pi)
+        #food_distance = math.sqrt(abs(dx_std)**2 + abs(dy_std)**2) / math.sqrt((self.snake_board.G_HEIGHT-1)**2 + (self.snake_board.G_WIDTH-1)**2)
 
         # ----- Calc hazards distance -----
-        # Distance to walls 
-        rel_pos_x = (self.snake_board.G_WIDTH - 1 - self.pos_snake[0]) / (self.snake_board.G_WIDTH-1)
-        rel_pos_y = (self.snake_board.G_HEIGHT- 1 - self.pos_snake[1]) / (self.snake_board.G_HEIGHT-1)
+        MAXCOORD = self.snake_board.G_HEIGHT # Assuming square table
+        
+        # Distance to walls - Absolute coordinates (don't care about snake's direction)
+        h2lw = self.pos_snake[0] / (MAXCOORD-1) # h2lw -> head to left wall
+        h2rw = 1 - h2lw # h2rw -> head to right wall
+        h2uw = self.pos_snake[1] / (MAXCOORD-1) # h2uw -> head to upper wall
+        h2dw = 1 - h2uw # h2dw -> head to lower (down) wall
 
+        # Distance to body - Absolute coordinates (don't care about snake's direction)
+        h2lb, h2rb, h2ub, h2db = h2lw, h2rw, h2uw, h2dw
+        for i in range(1,MAXCOORD-2):
+            # Break loop if distances will be no more updated - minimum found
+            if h2lb <= (i-1) and h2rb <= (i-1) and h2ub <= (i-1) and h2db <= (i-1):
+                break
+
+            for j, body in enumerate(self.body_snake):
+                # Check head to body distance to the left (absolute coord)
+                if self.pos_snake[0] == body[0]+i and self.pos_snake[1] == body[1]:
+                    h2lb = min(h2lb, (i-1) / (MAXCOORD-1))
+                # Check head to body distance to the right (absolute coord)
+                elif self.pos_snake[0] == body[0]-i and self.pos_snake[1] == body[1]:
+                    h2rb = min(h2rb, (i-1) / (MAXCOORD-1))
+                # Check head to body distance to above (absolute coord)
+                elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]+i:
+                    h2ub = min(h2ub, (i-1) / (MAXCOORD-1))
+                # Check head to body distance to below (absolute coord)
+                elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]-i:
+                    h2db = min(h2db, (i-1) / (MAXCOORD-1))
+            
+
+        # Distance to hazard - min between wall and body - relative coordinates (based on snake's direction)
         if self.direction == "RIGHT":
-            rel_pos_ahead_wall = rel_pos_x
-            rel_pos_lat_wall = 1-rel_pos_y
+            haz_ahead = min(h2rw, h2rb) #Abs Right
+            haz_left = min(h2uw, h2ub) #Abs Up
+            haz_right = min(h2dw, h2db) #Abs Dw
         elif self.direction == "UP":
-            rel_pos_ahead_wall = 1-rel_pos_y
-            rel_pos_lat_wall = 1-rel_pos_x
+            haz_ahead = min(h2uw, h2ub) 
+            haz_left = min(h2lw, h2lb) 
+            haz_right = min(h2rw, h2rb) 
         elif self.direction == "LEFT":
-            rel_pos_ahead_wall = 1-rel_pos_x
-            rel_pos_lat_wall = rel_pos_y
+            haz_ahead = min(h2lw, h2lb) 
+            haz_left = min(h2dw, h2db) 
+            haz_right = min(h2uw, h2ub) 
         elif self.direction == "DOWN":
-            rel_pos_ahead_wall = rel_pos_y
-            rel_pos_lat_wall = rel_pos_x
+            haz_ahead = min(h2dw, h2db) 
+            haz_left = min(h2rw, h2rb) 
+            haz_right = min(h2lw, h2lb) 
+        
+        #print(f'AHEAD: {haz_ahead} --- left: {haz_left} --- right: {haz_right}')
 
-        #print("X / Y:", self.pos_snake[0], "  -  ", self.pos_snake[1])
-        #print("AHEAD: ", rel_pos_ahead_wall, " - LAT: ", rel_pos_lat_wall)
-
-        # Distance to body
-        d_body_x = [self.snake_board.G_WIDTH, -1*self.snake_board.G_WIDTH]
-        d_body_y = [self.snake_board.G_WIDTH, -1*self.snake_board.G_WIDTH]
-        for block in self.body_snake[1:]:
-            if block[0] == self.pos_snake[0]:
-                d_body_y.append(block[1] - self.pos_snake[1])
-            if block[1] == self.pos_snake[1]:
-                d_body_x.append(block[0] - self.pos_snake[0])
-
-        if self.direction == "RIGHT":
-            d_ahead = min([i for i in d_body_x if i > 0])
-            d_lat = min(d_body_y, key=lambda x: abs(x))
-        elif self.direction == "UP":
-            d_ahead = min([i for i in d_body_y if i < 0]) 
-            d_lat = min(d_body_x, key=lambda x: abs(x))       
-        elif self.direction == "LEFT":
-            d_ahead = min([i for i in d_body_x if i < 0])
-            d_lat = -1 * min(d_body_y, key=lambda x: abs(x))
-        elif self.direction == "DOWN":
-            d_ahead = min([i for i in d_body_y if i > 0])
-            d_lat = -1 * min(d_body_x, key=lambda x: abs(x))
-
-        rel_pos_ahead_body = d_ahead / self.snake_board.G_WIDTH
-        rel_pos_lat_body = d_lat / self.snake_board.G_WIDTH
-        #print("AHEAD: ", rel_pos_ahead_body, " - LAT: ", rel_pos_lat_body)
-
-        return [food_angle, rel_pos_ahead_wall, rel_pos_lat_wall, rel_pos_ahead_body, rel_pos_lat_body]
+        return [food_angle, haz_ahead, haz_left, haz_right]
 
     def _update_game_state(self, req_dir):
         # Validate new requested direction - HEAD BASED
