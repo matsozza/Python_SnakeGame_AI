@@ -37,9 +37,9 @@ class NeuralNetwork:
                         # Generate a mutation and bound it within +-1
                         w = np.random.normal(w, size_w)
                         if w > 1:
-                            pass #w = 1
+                            w = 1
                         elif w < -1:
-                            pass #w = -1
+                            w = -1
                         #print("W_before -> ", str(w_old), " w_aft ->", str(w))
                         l_weights[w_row][w_col] = w
             
@@ -52,9 +52,9 @@ class NeuralNetwork:
                     # Generate a mutation and bound it within +-1
                     b = np.random.normal(b, size_b)
                     if b > 1:
-                        pass #b = 1
+                        b = 1
                     elif b < -1:
-                        pass #b = -1
+                        b = -1
                     #print("B_before -> ", str(b_old), " b_aft ->", str(b))
                     l_biases[b_row] = b
             

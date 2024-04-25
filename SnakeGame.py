@@ -164,7 +164,7 @@ class SnakeGame:
             if req_dir == 'RIGHT' and self.direction != 'LEFT':
                 self.direction = 'RIGHT'
         
-        # Calculate new snake position
+        # Calculate new snake head position
         if self.direction == 'UP':
             self.pos_snake[1] -= 1
         if self.direction == 'DOWN':
@@ -180,7 +180,7 @@ class SnakeGame:
             self.score += 1 # grow snake
             self.w_score += self.timeout # receive remaining time as energy
             
-            # Randomize until food doesn't overlap snake's body
+            # Create a new food - Randomize until food doesn't overlap snake's body
             idxFoodLoop = 0
             while True: 
                 self.pos_food = [random.randrange(0, (self.snake_board.G_WIDTH)) , random.randrange(0, (self.snake_board.G_HEIGHT)) ] #create new food
@@ -192,8 +192,8 @@ class SnakeGame:
                 if non_overlap == 1:
                     break
                 idxFoodLoop= idxFoodLoop+1
-                if idxFoodLoop > 10:
-                    print("Food loop taking too long - ", idxFoodLoop)
+                if idxFoodLoop > 30:
+                    print("Food loop taking too long - ", idxFoodLoop, " - Snake size: ", self.score)
 
             self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
         else:
@@ -211,7 +211,7 @@ class SnakeGame:
                 return True
             
         # Snake achieved maximum size possible
-        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 3:
+        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 2:
             print(" Game over - Max size achieved!")
             return True
 
