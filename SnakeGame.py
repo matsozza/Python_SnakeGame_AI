@@ -139,6 +139,11 @@ class SnakeGame:
         return [food_angle, haz_ahead, haz_left, haz_right]
 
     def _update_game_state(self, req_dir):
+        # Input validation  - If number provided, map to textual
+        if req_dir == 0: req_dir = "IDLE"
+        elif req_dir == 1: req_dir = "T_LEFT"
+        elif req_dir == 2: req_dir = "T_RIGHT"
+
         # Validate new requested direction - HEAD BASED
         if req_dir == 'T_LEFT' and self.direction == 'UP':
             self.direction = 'LEFT'
@@ -162,11 +167,11 @@ class SnakeGame:
         else:
             if req_dir == 'UP' and self.direction != 'DOWN':
                 self.direction = 'UP'
-            if req_dir == 'DOWN' and self.direction != 'UP':
+            elif req_dir == 'DOWN' and self.direction != 'UP':
                 self.direction = 'DOWN'
-            if req_dir == 'LEFT' and self.direction != 'RIGHT':
+            elif req_dir == 'LEFT' and self.direction != 'RIGHT':
                 self.direction = 'LEFT'
-            if req_dir == 'RIGHT' and self.direction != 'LEFT':
+            elif req_dir == 'RIGHT' and self.direction != 'LEFT':
                 self.direction = 'RIGHT'
         
         # Calculate new snake head position
@@ -205,7 +210,7 @@ class SnakeGame:
             self.body_snake.pop() #just move snake
             self.timeout = self.timeout - 1
 
-    def _check_gameover(self): # check if any violation ocurred
+    def _check_gameover(self):
         # Touched the wall
         if (self.pos_snake[0] < 0 or self.pos_snake[0] > self.snake_board.G_WIDTH-1) or self.pos_snake[1] < 0 or self.pos_snake[1] > self.snake_board.G_HEIGHT-1:
             return True
@@ -221,7 +226,6 @@ class SnakeGame:
             return True
 
         if self.timeout <= 0:
-            #print("TIMEOUT")
             return True
         
         return False # No violation
