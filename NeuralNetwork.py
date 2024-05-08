@@ -18,9 +18,9 @@ class NeuralNetwork:
         self.weights.append(np.zeros(  [NeuralNetwork.size_hidden_layer, NeuralNetwork.size_output_layer  ]))
         self.biases.append(np.zeros(  [NeuralNetwork.size_output_layer  ]))
 
-        self.mutate(1,0.05) # Random mutation in 100% of the weights for start-up
+        self.mutate(1,0.05,1,0.005) # Random mutation in 100% of the weights for start-up
 
-    def mutate(self, rate_w, size_w, rate_b=0, size_b=0):
+    def mutate(self, rate_w, size_w, rate_b, size_b):
         # Sweep each layer of the architecture
         for idx, layer in enumerate(self.weights):
             l_weights = self.weights[idx] # weights in the given layer (2D)
