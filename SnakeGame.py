@@ -216,7 +216,7 @@ class SnakeGame:
                 return True
             
         # Snake achieved maximum size possible
-        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 2:
+        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 3:
             print(" Game over - Max size achieved!")
             return True
 
