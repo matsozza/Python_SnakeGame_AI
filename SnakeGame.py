@@ -90,14 +90,12 @@ class SnakeGame:
         food_angle = round((math.atan2(dy,dx) / (math.pi)),2)
         #food_distance = math.sqrt(abs(dx_std)**2 + abs(dy_std)**2) / math.sqrt((self.board_size-1)**2 + (self.board_size-1)**2)
 
-        # ----- Calc hazards distance -----
-        MAXCOORD = self.board_size # Assuming square table
-        
+        # ----- Calc hazards distance -----          
         # Distance to walls - Absolute coordinates (don't care about snake's direction)
         # Left, Right, Up and Down respectively
-        h2l_wall = self.pos_snake[0] / (MAXCOORD-1) # h2lw -> head to left wall
+        h2l_wall = self.pos_snake[0] / (self.board_size-1) # h2lw -> head to left wall
         h2r_wall = 1 - h2l_wall # h2rw -> head to right wall
-        h2u_wall = self.pos_snake[1] / (MAXCOORD-1) # h2uw -> head to upper wall
+        h2u_wall = self.pos_snake[1] / (self.board_size-1) # h2uw -> head to upper wall
         h2d_wall = 1 - h2u_wall # h2dw -> head to lower (down) wall
         # Diagonals
         h2lu_wall = min(h2l_wall, h2u_wall)
@@ -109,37 +107,37 @@ class SnakeGame:
         # Values are started based on distance to wall values (worst case)
         h2l_body, h2r_body, h2u_body, h2d_body = h2l_wall, h2r_wall, h2u_wall, h2d_wall
         h2lu_body, h2ld_body, h2ru_body, h2rd_body = h2lu_wall, h2ld_wall, h2ru_wall, h2rd_wall
-        for i in range(1,MAXCOORD-2):
+        for i in range(1,self.board_size-2):
             # Break loop if distances will be no more updated - minimum already found
-            if h2l_body <= (i-1)/(MAXCOORD-1) and h2r_body <= (i-1)/(MAXCOORD-1) and \
-               h2u_body <= (i-1)/(MAXCOORD-1) and h2d_body <= (i-1)/(MAXCOORD-1):
+            if h2l_body <= (i-1)/(self.board_size-1) and h2r_body <= (i-1)/(self.board_size-1) and \
+               h2u_body <= (i-1)/(self.board_size-1) and h2d_body <= (i-1)/(self.board_size-1):
                 break
 
             for _, body in enumerate(self.body_snake):
                 # Check head to body distance - left (absolute coord)
                 if self.pos_snake[0] == body[0]+i and self.pos_snake[1] == body[1]:
-                    h2l_body = min(h2l_body, (i-1) / (MAXCOORD-1))
+                    h2l_body = min(h2l_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - right (absolute coord)
                 elif self.pos_snake[0] == body[0]-i and self.pos_snake[1] == body[1]:
-                    h2r_body = min(h2r_body, (i-1) / (MAXCOORD-1))
+                    h2r_body = min(h2r_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - above (absolute coord)
                 elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]+i:
-                    h2u_body = min(h2u_body, (i-1) / (MAXCOORD-1))
+                    h2u_body = min(h2u_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - below (absolute coord)
                 elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]-i:
-                    h2d_body = min(h2d_body, (i-1) / (MAXCOORD-1))
+                    h2d_body = min(h2d_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - diag above / left
                 elif self.pos_snake[0] == body[0]+i and self.pos_snake[1]==body[1]+i:
-                    h2lu_body = min(h2lu_body, (i-1) / (MAXCOORD-1))
+                    h2lu_body = min(h2lu_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - diag below / left
                 elif self.pos_snake[0] == body[0]+i and self.pos_snake[1]==body[1]-i:
-                    h2ld_body = min(h2ld_body, (i-1) / (MAXCOORD-1))
+                    h2ld_body = min(h2ld_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - diag above / right
                 elif self.pos_snake[0] == body[0]-i and self.pos_snake[1]==body[1]+i:
-                    h2ru_body = min(h2ru_body, (i-1) / (MAXCOORD-1))
+                    h2ru_body = min(h2ru_body, (i-1) / (self.board_size-1))
                 # Check head to body distance - diag below / right
                 elif self.pos_snake[0] == body[0]-i and self.pos_snake[1]==body[1]-i:
-                    h2rd_body = min(h2rd_body, (i-1) / (MAXCOORD-1))
+                    h2rd_body = min(h2rd_body, (i-1) / (self.board_size-1))
                     
         # Distance to hazard - min between wall and body - relative coordinates (based on snake's direction)
         if self.direction == "RIGHT":
@@ -223,20 +221,13 @@ class SnakeGame:
             self.score += 1 # grow snake
             self.w_score += self.timeout # receive remaining time as energy
 
-            # Create a new food - Randomize until food doesn't overlap snake's body            
-            idxFoodLoop = 0
-            while True: 
-                self.pos_food = [random.randrange(0, (self.board_size)) , random.randrange(0, (self.board_size)) ] #create new food
-                non_overlap = 1
-                for block in self.body_snake:
-                    if block[0] == self.pos_food[0] and block[1] == self.pos_food[1]:
-                        non_overlap = 0
-                        break
-                if non_overlap == 1:
-                    break
-                idxFoodLoop= idxFoodLoop+1
-                if idxFoodLoop > 30:
-                    print("Food loop taking too long - ", idxFoodLoop, " - Snake size: ", self.score)
+            # Create a new food in an available position        
+            available_positions = {(x, y) for x in range(self.board_size) for y in range(self.board_size)} - set(map(tuple, self.body_snake))
+            if available_positions:
+                self.pos_food = random.choice(list(available_positions))
+            else:
+                # TODO: Unreachable - just placed here for debugging any unpredicted condition.
+                print("No available position for food insertion") 
 
             self.timeout = (self.board_size * self.board_size)
         else:

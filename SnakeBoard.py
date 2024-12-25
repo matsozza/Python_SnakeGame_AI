@@ -18,7 +18,7 @@ class SnakeBoard:
     G_SPD = 100 # game speed up to 10fps
 
     # Window size
-    WRES = 5
+    WRES = 15
     S_WIDTH = 1024
     S_HEIGHT = 768
     BORDER = 1
