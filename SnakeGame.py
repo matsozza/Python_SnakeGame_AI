@@ -6,13 +6,14 @@ import math
 class SnakeGame:
 
 #region ----- Class variables -----
+
 #endregion
 
 #region ----- Methods -----
 
-    def __init__(self, snake_board):
+    def __init__(self, board_size = 6):
         #print("SnakeGame instance created.")
-        self.snake_board = snake_board
+        self.board_size = board_size
         self._init_game()
     
     def _init_game(self):
@@ -25,14 +26,14 @@ class SnakeGame:
         #self.body_snake = [[1, 3], [0, 3], [0, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [4, 4], [4, 3], [4, 2],[4,1]]
         
         # fruit position
-        self.pos_food = [random.randrange(1, (self.snake_board.G_WIDTH)), random.randrange(1, (self.snake_board.G_HEIGHT))]
+        self.pos_food = [random.randrange(1, (self.board_size)), random.randrange(1, (self.board_size))]
 
         # setting default snake direction towards right
         self.direction = 'RIGHT'
         self.score = 0 # initial score
         self.w_score = 0 # weighed score
         self.game_over = False
-        self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
+        self.timeout = (self.board_size * self.board_size)
 
     def step_game(self, req_dir = "IDLE"):
         # Run game and update state / score if not game over
@@ -87,10 +88,10 @@ class SnakeGame:
             dx = -dy_std
             dy = dx_std
         food_angle = round((math.atan2(dy,dx) / (math.pi)),2)
-        #food_distance = math.sqrt(abs(dx_std)**2 + abs(dy_std)**2) / math.sqrt((self.snake_board.G_HEIGHT-1)**2 + (self.snake_board.G_WIDTH-1)**2)
+        #food_distance = math.sqrt(abs(dx_std)**2 + abs(dy_std)**2) / math.sqrt((self.board_size-1)**2 + (self.board_size-1)**2)
 
         # ----- Calc hazards distance -----
-        MAXCOORD = self.snake_board.G_HEIGHT # Assuming square table
+        MAXCOORD = self.board_size # Assuming square table
         
         # Distance to walls - Absolute coordinates (don't care about snake's direction)
         # Left, Right, Up and Down respectively
@@ -225,7 +226,7 @@ class SnakeGame:
             # Create a new food - Randomize until food doesn't overlap snake's body            
             idxFoodLoop = 0
             while True: 
-                self.pos_food = [random.randrange(0, (self.snake_board.G_WIDTH)) , random.randrange(0, (self.snake_board.G_HEIGHT)) ] #create new food
+                self.pos_food = [random.randrange(0, (self.board_size)) , random.randrange(0, (self.board_size)) ] #create new food
                 non_overlap = 1
                 for block in self.body_snake:
                     if block[0] == self.pos_food[0] and block[1] == self.pos_food[1]:
@@ -237,14 +238,14 @@ class SnakeGame:
                 if idxFoodLoop > 30:
                     print("Food loop taking too long - ", idxFoodLoop, " - Snake size: ", self.score)
 
-            self.timeout = (self.snake_board.G_HEIGHT * self.snake_board.G_WIDTH)
+            self.timeout = (self.board_size * self.board_size)
         else:
             self.body_snake.pop() #just move snake
             self.timeout = self.timeout - 1
 
     def _check_gameover(self):
         # Touched the wall
-        if (self.pos_snake[0] < 0 or self.pos_snake[0] > self.snake_board.G_WIDTH-1) or self.pos_snake[1] < 0 or self.pos_snake[1] > self.snake_board.G_HEIGHT-1:
+        if (self.pos_snake[0] < 0 or self.pos_snake[0] > self.board_size-1) or self.pos_snake[1] < 0 or self.pos_snake[1] > self.board_size-1:
             return True
 
         # Touched the snake body
@@ -253,7 +254,7 @@ class SnakeGame:
                 return True
             
         # Snake achieved maximum size possible
-        if self.score == (self.snake_board.G_WIDTH * self.snake_board.G_HEIGHT) - 3:
+        if self.score == (self.board_size * self.board_size) - 3:
             print(f"Game over - Max score of {self.score} achieved!")
             return True
 
@@ -262,4 +263,4 @@ class SnakeGame:
         
         return False # No violation
     
-    #endregion
+#endregion

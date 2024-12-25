@@ -19,21 +19,17 @@ class SnakeBoard:
 
     # Window size
     WRES = 5
-    G_WIDTH = 6
-    G_HEIGHT = G_WIDTH # Keep same as G_WIDTH - must be square!
     S_WIDTH = 1024
     S_HEIGHT = 768
     BORDER = 1
-
-    W_WIDTH = G_WIDTH * WRES
-    W_HEIGHT = G_HEIGHT * WRES
 #endregion
 
 #region ----- Methods -----
 
-    def __init__(self, num_games, visuals=True):
+    def __init__(self, games, visuals=True):
         print("SnakeBoard instance created.")
-        self.num_games = num_games
+        self.games = games
+        self.board_size = games[0].board_size
         self.visuals = visuals
 
     def init_board(self):    
@@ -48,7 +44,7 @@ class SnakeBoard:
             # Initialize game window
             pygame.display.set_caption('Snake Game')
             self._calc_boardsize_screen()
-            self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.W_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER) ))
+            self.game_window = pygame.display.set_mode((self.ncols*(self.board_size*SnakeBoard.WRES + 2*SnakeBoard.BORDER), self.nrows*(self.board_size*SnakeBoard.WRES+2*SnakeBoard.BORDER) ))
 
     def quit_board(self):
         if self.visuals:
@@ -59,18 +55,18 @@ class SnakeBoard:
             # Clear game board
             self.game_window.fill(SnakeBoard.BLACK) 
 
-    def update_board_elements(self, s_games):
+    def update_board_elements(self):
         if self.visuals == False:
             return 
         
-        for num_game, game in enumerate(s_games):
+        for num_game, game in enumerate(self.games):
             [ox,oy]= self._calc_gamepos_screen(num_game)
             
             # Draw border
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.BORDER, SnakeBoard.W_WIDTH+2*SnakeBoard.BORDER))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(SnakeBoard.W_HEIGHT+SnakeBoard.BORDER+ox,0+oy, SnakeBoard.BORDER, SnakeBoard.W_WIDTH+2*SnakeBoard.BORDER))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER,SnakeBoard.BORDER ))
-            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, SnakeBoard.W_WIDTH + SnakeBoard.BORDER+oy,  SnakeBoard.W_HEIGHT+ 2*SnakeBoard.BORDER, SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, SnakeBoard.BORDER, self.board_size*SnakeBoard.WRES+2*SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(self.board_size*SnakeBoard.WRES+SnakeBoard.BORDER+ox,0+oy, SnakeBoard.BORDER, self.board_size*SnakeBoard.WRES+2*SnakeBoard.BORDER))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, 0+oy, self.board_size*SnakeBoard.WRES+2*SnakeBoard.BORDER,SnakeBoard.BORDER ))
+            pygame.draw.rect(self.game_window, SnakeBoard.YELLOW, pygame.Rect(0+ox, self.board_size*SnakeBoard.WRES + SnakeBoard.BORDER+oy,  self.board_size*SnakeBoard.WRES+ 2*SnakeBoard.BORDER, SnakeBoard.BORDER))
             
             # Draw snake
             for idx, pos in enumerate(game.body_snake): 
@@ -81,9 +77,9 @@ class SnakeBoard:
 
                 # Don't draw out of the board
                 pos_res[0] = 0 if pos_res[0] < 0 else pos_res[0] 
-                pos_res[0] = SnakeBoard.W_WIDTH - SnakeBoard.WRES if pos_res[0] > SnakeBoard.W_WIDTH - SnakeBoard.WRES else pos_res[0] 
+                pos_res[0] = self.board_size*SnakeBoard.WRES - SnakeBoard.WRES if pos_res[0] > self.board_size*SnakeBoard.WRES - SnakeBoard.WRES else pos_res[0] 
                 pos_res[1] = 0 if pos_res[1] < 0 else pos_res[1] 
-                pos_res[1] = SnakeBoard.W_HEIGHT - SnakeBoard.WRES if pos_res[1] > SnakeBoard.W_HEIGHT - SnakeBoard.WRES else pos_res[1] 
+                pos_res[1] = self.board_size*SnakeBoard.WRES - SnakeBoard.WRES if pos_res[1] > self.board_size*SnakeBoard.WRES - SnakeBoard.WRES else pos_res[1] 
 
                 # Draw object
                 if game.game_over == True:
@@ -116,16 +112,16 @@ class SnakeBoard:
         self.fps.tick(SnakeBoard.G_SPD)
 
     def _calc_boardsize_screen(self):
-        self.ncols = int(np.ceil(np.sqrt(self.num_games)))
-        self.nrows = int(np.round(np.sqrt(self.num_games)))
+        self.ncols = int(np.ceil(np.sqrt(len(self.games))))
+        self.nrows = int(np.round(np.sqrt(len(self.games))))
 
     def _calc_gamepos_screen(self, num_game):
         n=0        
         for x in range(self.ncols):
             for y in range(self.nrows):
                 if num_game==n:
-                    game_x= x * (SnakeBoard.W_WIDTH + SnakeBoard.BORDER)
-                    game_y= y * (SnakeBoard.W_HEIGHT + SnakeBoard.BORDER)
+                    game_x= x * (self.board_size*SnakeBoard.WRES + SnakeBoard.BORDER)
+                    game_y= y * (self.board_size*SnakeBoard.WRES + SnakeBoard.BORDER)
                     return [game_x, game_y]
                 n=n+1
         return -1
