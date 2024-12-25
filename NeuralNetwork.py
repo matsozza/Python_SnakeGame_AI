@@ -1,64 +1,41 @@
 # importing libraries
 import numpy as np
-import math
 import copy
 
 class NeuralNetwork:
-    size_input_layer = 6
-    size_hidden_layer = 1*size_input_layer
-    size_output_layer = 3
-
     def __init__(self) -> None:
+        # Initialize weights and biases randomly within a certain range
+        self.network_topology = [6,6,3]
         self.weights = []
         self.biases = []
-
-        # Initialize weights and biases randomly within a certain range
-        self.weights.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_input_layer, NeuralNetwork.size_hidden_layer]))
-        self.biases.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_hidden_layer]))
-
-        self.weights.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_hidden_layer, NeuralNetwork.size_output_layer]))
-        self.biases.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_output_layer]))
+        
+        num_layers = len(self.network_topology)
+        for layer_num in range(num_layers-1):
+                w= np.random.uniform(-0.1, 0.1,
+                    [self.network_topology[layer_num], self.network_topology[layer_num+1]])
+                b= np.random.uniform(-0.1, 0.1, 
+                    self.network_topology[layer_num+1])
+                self.weights.append(w)
+                self.biases.append(b)      
 
     def mutate(self, rate_w, size_w, rate_b, size_b):
-        # Sweep each layer of the architecture
-        for idx, layer in enumerate(self.weights):
-            l_weights = self.weights[idx] # weights in the given layer (2D)
-            l_biases = self.biases[idx] # biases in the given layer (1D)
-            #print("Total weights in layer: ", str(np.shape(l_weights)[0] * np.shape(l_weights)[1]))
+        # Loop through each layer in the neural network
+        for idx in range(len(self.weights)):
+            # Create vector of mutation for weights
+            selected_weights = np.random.binomial(1, rate_w, size=self.weights[idx].shape).astype(bool)
+            mutation_offset_weights = np.random.normal(0, size_w, size=self.weights[idx].shape)
+            
+            # Apply mutation and clip values between -1 +1
+            self.weights[idx][selected_weights] += mutation_offset_weights[selected_weights]
+            self.weights[idx] = np.clip(self.weights[idx], -1, 1)  
 
-            # Loop into each weight in the current layer and apply mutation
-            for w_row in np.arange(np.shape(l_weights)[0]):
-                for w_col in np.arange(np.shape(l_weights)[1]):
-                    if np.random.binomial(1, rate_w) == 1: # Mutate
-                        w = l_weights[w_row][w_col]
-                        w_old = w
-                        
-                        # Generate a mutation and bound it within +-1
-                        w = np.random.normal(w, size_w)
-                        if w > 1:
-                            w = 1
-                        elif w < -1:
-                            w = -1
-                        #print("W_before -> ", str(w_old), " w_aft ->", str(w))
-                        l_weights[w_row][w_col] = w
+            # Create vector of mutation for biases
+            selected_biases = np.random.binomial(1, rate_b, size=self.biases[idx].shape).astype(bool)
+            mutation_offset_biases = np.random.normal(0, size_b, size=self.biases[idx].shape)
             
-            # Loop into each bias in the current layer and apply mutation
-            for b_row in np.arange(np.shape(l_biases)[0]):
-                if np.random.binomial(1, rate_b) == 1: # Mutate
-                    b = l_biases[b_row]
-                    b_old = b
-                    
-                    # Generate a mutation and bound it within +-1
-                    b = np.random.normal(b, size_b)
-                    if b > 1:
-                        b = 1
-                    elif b < -1:
-                        b = -1
-                    #print("B_before -> ", str(b_old), " b_aft ->", str(b))
-                    l_biases[b_row] = b
-            
-            self.weights[idx] = l_weights
-            self.biases[idx] = l_biases
+            # Apply mutation and clip values between -1 +1
+            self.biases[idx][selected_biases] += mutation_offset_biases[selected_biases]
+            self.biases[idx] = np.clip(self.biases[idx], -1, 1)  
 
     def softmax(x):
         e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
@@ -71,15 +48,10 @@ class NeuralNetwork:
         return np.tanh(x)
 
     def calculate(self, inputs):
+        l0 = NeuralNetwork.relu((inputs @ self.weights[0]) + self.biases[0])
+        l1 =  NeuralNetwork.softmax((l0 @ self.weights[1])  + self.biases[1])
         #print("Input:", input)
-        l0 = inputs @ self.weights[0]
-        l0 = l0 + self.biases[0]
-        l0 = NeuralNetwork.relu(l0)
         #print("l0:", l0)
-
-        l1 = l0 @ self.weights[1]
-        l1 = l1 + self.biases[1]
-        l1 = NeuralNetwork.softmax(l1)
         #print("l1:", l1)
         return np.argmax(l1, axis = 0)
 
