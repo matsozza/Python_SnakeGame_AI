@@ -4,21 +4,20 @@ import math
 import copy
 
 class NeuralNetwork:
-    size_input_layer = 4
-    size_hidden_layer = 6
+    size_input_layer = 6
+    size_hidden_layer = 1*size_input_layer
     size_output_layer = 3
 
     def __init__(self) -> None:
         self.weights = []
         self.biases = []
 
-        self.weights.append(np.zeros(  [NeuralNetwork.size_input_layer, NeuralNetwork.size_hidden_layer  ]))
-        self.biases.append(np.zeros(  [NeuralNetwork.size_hidden_layer  ]))
+        # Initialize weights and biases randomly within a certain range
+        self.weights.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_input_layer, NeuralNetwork.size_hidden_layer]))
+        self.biases.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_hidden_layer]))
 
-        self.weights.append(np.zeros(  [NeuralNetwork.size_hidden_layer, NeuralNetwork.size_output_layer  ]))
-        self.biases.append(np.zeros(  [NeuralNetwork.size_output_layer  ]))
-
-        self.mutate(1,0.05,1,0.005) # Random mutation in 100% of the weights for start-up
+        self.weights.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_hidden_layer, NeuralNetwork.size_output_layer]))
+        self.biases.append(np.random.uniform(-0.1, 0.1, [NeuralNetwork.size_output_layer]))
 
     def mutate(self, rate_w, size_w, rate_b, size_b):
         # Sweep each layer of the architecture
@@ -62,30 +61,25 @@ class NeuralNetwork:
             self.biases[idx] = l_biases
 
     def softmax(x):
-        e_x = np.exp(x - np.max(x))
-        return e_x / e_x.sum()
+        e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
+        return e_x / np.sum(e_x, axis=-1, keepdims=True)
     
     def relu(x):
-        for i,v in enumerate(x):
-            if v<0: 
-                x[i]=0
-        return x
-    
+        return np.maximum(0, x)
+
     def tanh(x):
-        for i,v in enumerate(x):
-            x[i]=math.tanh(v)
-        return x  
+        return np.tanh(x)
 
     def calculate(self, inputs):
         #print("Input:", input)
         l0 = inputs @ self.weights[0]
         l0 = l0 + self.biases[0]
-        l0 = NeuralNetwork.tanh(l0)
+        l0 = NeuralNetwork.relu(l0)
         #print("l0:", l0)
 
         l1 = l0 @ self.weights[1]
         l1 = l1 + self.biases[1]
-        l1 = NeuralNetwork.relu(l1)
+        l1 = NeuralNetwork.softmax(l1)
         #print("l1:", l1)
         return np.argmax(l1, axis = 0)
 
@@ -99,9 +93,8 @@ class NeuralNetwork:
             try:
                 setattr(new_obj, k, copy.deepcopy(v))
             except:
-                pass   # non-pickelable stuff wasn't needed
-
-            return new_obj
+                pass
+        return new_obj
 
     def copy(self):
         return self.__copy__()

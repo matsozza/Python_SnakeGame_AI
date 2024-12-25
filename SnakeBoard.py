@@ -15,10 +15,10 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 10000000 # game speed up to 10fps
+    G_SPD = 100 # game speed up to 10fps
 
     # Window size
-    WRES = 2
+    WRES = 5
     G_WIDTH = 6
     G_HEIGHT = G_WIDTH # Keep same as G_WIDTH - must be square!
     S_WIDTH = 1024
@@ -31,31 +31,38 @@ class SnakeBoard:
 
 #region ----- Methods -----
 
-    def __init__(self, num_games):
+    def __init__(self, num_games, visuals=True):
         print("SnakeBoard instance created.")
         self.num_games = num_games
+        self.visuals = visuals
 
     def init_board(self):    
-        # FPS (frames per second) controller
-        self.fps = pygame.time.Clock()      
-        
-        # Initializing pygame window in correct position
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (2,2)
-        pygame.init()
+        if self.visuals:
+            # FPS (frames per second) controller
+            self.fps = pygame.time.Clock()  
+            
+            # Initializing pygame window in correct position
+            os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (2,2)
+            pygame.init()
 
-        # Initialize game window
-        pygame.display.set_caption('Snake Game')
-        self._calc_boardsize_screen()
-        self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.W_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER) ))
+            # Initialize game window
+            pygame.display.set_caption('Snake Game')
+            self._calc_boardsize_screen()
+            self.game_window = pygame.display.set_mode((self.ncols*(SnakeBoard.W_WIDTH + 2*SnakeBoard.BORDER), self.nrows*(SnakeBoard.W_HEIGHT+2*SnakeBoard.BORDER) ))
 
     def quit_board(self):
-        pygame.quit()
+        if self.visuals:
+            pygame.quit()
 
     def clear_board(self):
-        # Clear game board
-        self.game_window.fill(SnakeBoard.BLACK) 
+        if self.visuals:
+            # Clear game board
+            self.game_window.fill(SnakeBoard.BLACK) 
 
     def update_board_elements(self, s_games):
+        if self.visuals == False:
+            return 
+        
         for num_game, game in enumerate(s_games):
             [ox,oy]= self._calc_gamepos_screen(num_game)
             
