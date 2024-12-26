@@ -224,57 +224,57 @@ class SnakeGame:
         ddist_body = dist_body[abs(dist_body[:,1]) == abs(dist_body[:,0])]
         
         # consolidate distance values in individual variables
-        h2u_body =  (abs(np.min(vdist_body[vdist_body > 0]))-1)/(self.board_size-1) \
+        h2u_body =  (np.min(vdist_body[vdist_body > 0])-1)/(self.board_size-1) \
                 if vdist_body[vdist_body > 0].size > 0 \
-                else math.inf
-        h2d_body =  (abs(np.max(vdist_body[vdist_body < 0]))-1)/(self.board_size-1) \
+                else h2u_wall
+        h2d_body =  -1*((np.max(vdist_body[vdist_body < 0]))+1)/(self.board_size-1) \
                 if vdist_body[vdist_body < 0].size > 0 \
-                else math.inf
-        h2l_body =  (abs(np.min(hdist_body[hdist_body > 0]))-1)/(self.board_size-1) \
+                else h2d_wall
+        h2l_body =  (np.min(hdist_body[hdist_body > 0])-1)/(self.board_size-1) \
                 if hdist_body[hdist_body > 0].size > 0 \
-                else math.inf
-        h2r_body =  (abs(np.max(hdist_body[hdist_body < 0]))-1)/(self.board_size-1) \
+                else h2l_wall
+        h2r_body =  -1*(np.max(hdist_body[hdist_body < 0])+1)/(self.board_size-1) \
                 if hdist_body[hdist_body < 0].size > 0 \
-                else math.inf
+                else h2r_wall
         
-        h2ru_body = (abs(np.min(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
+        h2ru_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
                 if ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)].size > 0 \
-                else math.inf
-        h2rd_body = (abs(np.min(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
+                else h2ru_wall
+        h2rd_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
                 if ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)].size > 0 \
-                else math.inf
-        h2lu_body = (abs(np.min(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
+                else h2rd_wall
+        h2lu_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
                 if ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)].size > 0 \
-                else math.inf
-        h2ld_body = (abs(np.min(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
+                else h2lu_wall 
+        h2ld_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
                 if ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)].size > 0 \
-                else math.inf        
+                else h2ld_wall        
         
         # Distance to hazard - min between wall and body - relative coordinates (based on snake's direction)
         if self.direction == "RIGHT":
-            haz_ahead = min(h2r_wall, h2r_body) #Abs Right
-            haz_left = min(h2u_wall, h2u_body) #Abs Up
-            haz_right = min(h2d_wall, h2d_body) #Abs Dw
-            haz_ahead_left = min(h2ru_wall, h2ru_body)
-            haz_ahead_right = min(h2rd_wall, h2rd_body)
+            haz_ahead = h2r_body #Abs Right
+            haz_left = h2u_body #Abs Up
+            haz_right = h2d_body #Abs Dw
+            haz_ahead_left = h2ru_body
+            haz_ahead_right = h2rd_body
         elif self.direction == "UP":
-            haz_ahead = min(h2u_wall, h2u_body) 
-            haz_left = min(h2l_wall, h2l_body) 
-            haz_right = min(h2r_wall, h2r_body) 
-            haz_ahead_left = min(h2lu_wall, h2lu_body)
-            haz_ahead_right = min(h2ru_wall, h2ru_body)
+            haz_ahead = h2u_body
+            haz_left = h2l_body 
+            haz_right = h2r_body 
+            haz_ahead_left = h2lu_body
+            haz_ahead_right = h2ru_body
         elif self.direction == "LEFT":
-            haz_ahead = min(h2l_wall, h2l_body) 
-            haz_left = min(h2d_wall, h2d_body) 
-            haz_right = min(h2u_wall, h2u_body) 
-            haz_ahead_left = min(h2ld_wall, h2ld_body)
-            haz_ahead_right = min(h2lu_wall, h2lu_body)
+            haz_ahead = h2l_body 
+            haz_left = h2d_body 
+            haz_right = h2u_body 
+            haz_ahead_left = h2ld_body
+            haz_ahead_right = h2lu_body
         elif self.direction == "DOWN":
-            haz_ahead = min(h2d_wall, h2d_body) 
-            haz_left = min(h2r_wall, h2r_body) 
-            haz_right = min(h2l_wall, h2l_body) 
-            haz_ahead_left = min(h2rd_wall, h2rd_body)
-            haz_ahead_right = min(h2ld_wall, h2ld_body)
+            haz_ahead = h2d_body 
+            haz_left = h2r_body 
+            haz_right = h2l_body 
+            haz_ahead_left = h2rd_body
+            haz_ahead_right = h2ld_body
         
         return [food_angle, haz_ahead, haz_left, haz_right, haz_ahead_left, haz_ahead_right]
 
