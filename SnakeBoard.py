@@ -26,7 +26,7 @@ class SnakeBoard:
 
 #region ----- Methods -----
 
-    def __init__(self, games, visuals=True):
+    def __init__(self, games, visuals=False):
         print("SnakeBoard instance created.")
         self.games = games
         self.board_size = games[0].board_size

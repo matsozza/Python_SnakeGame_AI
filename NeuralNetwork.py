@@ -5,7 +5,7 @@ import copy
 class NeuralNetwork:
     def __init__(self) -> None:
         # Initialize weights and biases randomly within a certain range
-        self.network_topology = [6,6,3]
+        self.network_topology = [6,12,3]
         self.weights = []
         self.biases = []
         
@@ -50,9 +50,6 @@ class NeuralNetwork:
     def calculate(self, inputs):
         l0 = NeuralNetwork.relu((inputs @ self.weights[0]) + self.biases[0])
         l1 =  NeuralNetwork.softmax((l0 @ self.weights[1])  + self.biases[1])
-        #print("Input:", input)
-        #print("l0:", l0)
-        #print("l1:", l1)
         return np.argmax(l1, axis = 0)
 
     def set_weights_biases(self,weights,biases):
@@ -70,3 +67,13 @@ class NeuralNetwork:
 
     def copy(self):
         return self.__copy__()
+    
+    def save_weights_biases(self, file_path):
+        """Save the weights and biases to a .npz file."""
+        np.savez(file_path, weights=self.weights, biases=self.biases)
+
+    def load_weights_biases(self, file_path):
+        """Load the weights and biases from a .npz file."""
+        data = np.load(file_path, allow_pickle=True)
+        self.weights = data['weights']
+        self.biases = data['biases']
