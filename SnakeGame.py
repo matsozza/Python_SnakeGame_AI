@@ -1,5 +1,4 @@
 # importing libraries
-import pygame
 import random
 import math
 import numpy as np
@@ -50,25 +49,6 @@ class SnakeGame:
         # Return game score and status
         return [self.game_over, self.w_score, self.score] # Game-over + score
     
-    def get_key(self):
-        # handling key events
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    return 'UP'
-                if event.key == pygame.K_DOWN:
-                    return 'DOWN'
-                if event.key == pygame.K_LEFT:
-                    return 'LEFT'
-                if event.key == pygame.K_RIGHT:
-                    return 'RIGHT'
-                if event.key == pygame.K_p:
-                    return 'PAUSE'
-                if event.key == pygame.K_SPACE:
-                    pygame.quit()
-                    quit()
-        return 'IDLE'
-
     def reset_game(self):
         self._init_game()
 
@@ -238,7 +218,7 @@ class SnakeGame:
             if available_positions:
                 self.pos_food = random.choice(list(available_positions))
             else:
-                # TODO: Unreachable - just placed here for debugging any unpredicted condition.
+                # TODO: Unreachable - just placed here for catching any unpredicted condition.
                 print("No available position for food insertion") 
 
             self.timeout = (self.board_size * self.board_size)
@@ -260,7 +240,7 @@ class SnakeGame:
             
         # Snake achieved maximum size possible
         if self.score == (self.board_size * self.board_size) - 3:
-            print(f"Game over - Max score of {self.score} achieved!")
+            #print(f"Game over - Max score of {self.score} achieved!")
             return True
 
         if self.timeout <= 0:
