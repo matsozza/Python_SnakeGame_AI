@@ -1,5 +1,6 @@
 # importing libraries
 import numpy as np
+import os
 import copy
 
 class NeuralNetwork:
@@ -70,10 +71,16 @@ class NeuralNetwork:
     
     def save_weights_biases(self, file_path):
         """Save the weights and biases to a .npz file."""
-        np.savez(file_path, weights=self.weights, biases=self.biases)
+        dir = os.path.dirname(file_path)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        
+        np.savez(file_path,
+                 weights=np.array(self.weights, dtype=object), 
+                 biases=np.array(self.biases, dtype=object))
 
     def load_weights_biases(self, file_path):
         """Load the weights and biases from a .npz file."""
         data = np.load(file_path, allow_pickle=True)
-        self.weights = data['weights']
-        self.biases = data['biases']
+        self.weights = list(data['weights'][0])
+        self.biases = list(data['biases'][0])
