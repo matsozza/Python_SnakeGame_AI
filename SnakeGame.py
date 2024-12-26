@@ -92,7 +92,6 @@ class SnakeGame:
             dx = -dy_std
             dy = dx_std
         food_angle = round((math.atan2(dy,dx) / (math.pi)),2)
-        #food_distance = math.sqrt(abs(dx_std)**2 + abs(dy_std)**2) / math.sqrt((self.board_size-1)**2 + (self.board_size-1)**2)
 
         # ----- Calc hazards distance -----          
         # Distance to walls - Absolute coordinates (don't care about snake's direction)
@@ -108,145 +107,47 @@ class SnakeGame:
         h2rd_wall = min(h2r_wall, h2d_wall)
 
         # Distance to body - Absolute coordinates (don't care about snake's direction)
-        # Values are started based on distance to wall values (worst case)
-        h2l_body, h2r_body, h2u_body, h2d_body = h2l_wall, h2r_wall, h2u_wall, h2d_wall
-        h2lu_body, h2ld_body, h2ru_body, h2rd_body = h2lu_wall, h2ld_wall, h2ru_wall, h2rd_wall
-        for i in range(1,self.board_size-2):
-            # Break loop if distances will be no more updated - minimum already found
-            if h2l_body <= (i-1)/(self.board_size-1) and h2r_body <= (i-1)/(self.board_size-1) and \
-               h2u_body <= (i-1)/(self.board_size-1) and h2d_body <= (i-1)/(self.board_size-1):
-                break
-
-            for _, body in enumerate(self.body_snake):
-                # Check head to body distance - left (absolute coord)
-                if self.pos_snake[0] == body[0]+i and self.pos_snake[1] == body[1]:
-                    h2l_body = min(h2l_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - right (absolute coord)
-                elif self.pos_snake[0] == body[0]-i and self.pos_snake[1] == body[1]:
-                    h2r_body = min(h2r_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - above (absolute coord)
-                elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]+i:
-                    h2u_body = min(h2u_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - below (absolute coord)
-                elif self.pos_snake[0] == body[0] and self.pos_snake[1] == body[1]-i:
-                    h2d_body = min(h2d_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - diag above / left
-                elif self.pos_snake[0] == body[0]+i and self.pos_snake[1]==body[1]+i:
-                    h2lu_body = min(h2lu_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - diag below / left
-                elif self.pos_snake[0] == body[0]+i and self.pos_snake[1]==body[1]-i:
-                    h2ld_body = min(h2ld_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - diag above / right
-                elif self.pos_snake[0] == body[0]-i and self.pos_snake[1]==body[1]+i:
-                    h2ru_body = min(h2ru_body, (i-1) / (self.board_size-1))
-                # Check head to body distance - diag below / right
-                elif self.pos_snake[0] == body[0]-i and self.pos_snake[1]==body[1]-i:
-                    h2rd_body = min(h2rd_body, (i-1) / (self.board_size-1))
-                    
-        # Distance to hazard - min between wall and body - relative coordinates (based on snake's direction)
-        if self.direction == "RIGHT":
-            haz_ahead = min(h2r_wall, h2r_body) #Abs Right
-            haz_left = min(h2u_wall, h2u_body) #Abs Up
-            haz_right = min(h2d_wall, h2d_body) #Abs Dw
-            haz_ahead_left = min(h2ru_wall, h2ru_body)
-            haz_ahead_right = min(h2rd_wall, h2rd_body)
-        elif self.direction == "UP":
-            haz_ahead = min(h2u_wall, h2u_body) 
-            haz_left = min(h2l_wall, h2l_body) 
-            haz_right = min(h2r_wall, h2r_body) 
-            haz_ahead_left = min(h2lu_wall, h2lu_body)
-            haz_ahead_right = min(h2ru_wall, h2ru_body)
-        elif self.direction == "LEFT":
-            haz_ahead = min(h2l_wall, h2l_body) 
-            haz_left = min(h2d_wall, h2d_body) 
-            haz_right = min(h2u_wall, h2u_body) 
-            haz_ahead_left = min(h2ld_wall, h2ld_body)
-            haz_ahead_right = min(h2lu_wall, h2lu_body)
-        elif self.direction == "DOWN":
-            haz_ahead = min(h2d_wall, h2d_body) 
-            haz_left = min(h2r_wall, h2r_body) 
-            haz_right = min(h2l_wall, h2l_body) 
-            haz_ahead_left = min(h2rd_wall, h2rd_body)
-            haz_ahead_right = min(h2ld_wall, h2ld_body)
-        
-        #print(f'Food Angle: {180*food_angle} -- Haz. Ahead: {haz_ahead} -- Haz. Left: {haz_left} -- Haz. Right: {haz_right}\n Haz. Ah-Left: {haz_ahead_left} -- Haz. Ah-Right: {haz_ahead_right}')
-
-        return [food_angle, haz_ahead, haz_left, haz_right, haz_ahead_left, haz_ahead_right]
-    
-    def get_game_state2(self):
-        # ----- Calc food angle regarding snake's head and current direction -----
-        # Normal cartesian coordinates, based on a snake going to the right
-        dx_std = (self.pos_food[0] - self.pos_snake[0])  # x-axis grow left-right
-        dy_std = ((self.pos_food[1] - self.pos_snake[1]) * -1 ) # y-axis grow top-down
-
-        # Adjust axis rotation reference
-        if self.direction == "RIGHT":
-            dx = dx_std
-            dy = dy_std
-        elif self.direction == "UP":
-            dx = dy_std
-            dy = -dx_std
-        elif self.direction == "LEFT":
-            dx = -dx_std
-            dy = -dy_std
-        elif self.direction == "DOWN":
-            dx = -dy_std
-            dy = dx_std
-        food_angle = round((math.atan2(dy,dx) / (math.pi)),2)
-
-        # ----- Calc hazards distance -----          
-        # Distance to walls - Absolute coordinates (don't care about snake's direction)
-        # Left, Right, Up and Down respectively
-        h2l_wall = self.pos_snake[0] / (self.board_size-1) # h2lw -> head to left wall
-        h2r_wall = 1 - h2l_wall # h2rw -> head to right wall
-        h2u_wall = self.pos_snake[1] / (self.board_size-1) # h2uw -> head to upper wall
-        h2d_wall = 1 - h2u_wall # h2dw -> head to lower (down) wall
-        # Diagonals
-        h2lu_wall = min(h2l_wall, h2u_wall)
-        h2ld_wall = min(h2l_wall, h2d_wall)
-        h2ru_wall = min(h2r_wall, h2u_wall)
-        h2rd_wall = min(h2r_wall, h2d_wall)
-
-        # Distance to body - Absolute coordinates (don't care about snake's direction)
-        body = np.array(self.body_snake)
-        head = np.array(self.pos_snake)
+        body = np.array(self.body_snake, dtype=int)
+        head = np.array(self.pos_snake, dtype=int)
         
         # Distance from snake head to body parts
         dist_body = (head-body)
 
         # values that share same X (vertically distant)
-        vdist_body = dist_body[dist_body[:,0]==0].flatten()
+        vdist_body = dist_body[dist_body[:,0]==0]#.flatten()
 
         # values that share same Y (horizontally distant)
-        hdist_body = dist_body[dist_body[:,1]==0].flatten()
+        hdist_body = dist_body[dist_body[:,1]==0]#.flatten()
 
         # values that are in the diagonals
         ddist_body = dist_body[abs(dist_body[:,1]) == abs(dist_body[:,0])]
         
-        # consolidate distance values in individual variables
-        h2u_body =  (np.min(vdist_body[vdist_body > 0])-1)/(self.board_size-1) \
+        # consolidate distance values in individual normalized variables
+        norm_board = 1/(self.board_size-1)
+        
+        h2u_body =  (np.min(vdist_body[vdist_body > 0])-1)*norm_board \
                 if vdist_body[vdist_body > 0].size > 0 \
                 else h2u_wall
-        h2d_body =  -1*((np.max(vdist_body[vdist_body < 0]))+1)/(self.board_size-1) \
+        h2d_body =  -1*((np.max(vdist_body[vdist_body < 0]))+1)*norm_board \
                 if vdist_body[vdist_body < 0].size > 0 \
                 else h2d_wall
-        h2l_body =  (np.min(hdist_body[hdist_body > 0])-1)/(self.board_size-1) \
+        h2l_body =  (np.min(hdist_body[hdist_body > 0])-1)*norm_board \
                 if hdist_body[hdist_body > 0].size > 0 \
                 else h2l_wall
-        h2r_body =  -1*(np.max(hdist_body[hdist_body < 0])+1)/(self.board_size-1) \
+        h2r_body =  -1*(np.max(hdist_body[hdist_body < 0])+1)*norm_board \
                 if hdist_body[hdist_body < 0].size > 0 \
                 else h2r_wall
         
-        h2ru_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
+        h2ru_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)]))-1)*norm_board \
                 if ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] > 0)].size > 0 \
                 else h2ru_wall
-        h2rd_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
+        h2rd_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)]))-1)*norm_board \
                 if ddist_body[(ddist_body[:,0] < 0) & (ddist_body[:,1] < 0)].size > 0 \
                 else h2rd_wall
-        h2lu_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)]))-1)/(self.board_size-1) \
+        h2lu_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)]))-1)*norm_board \
                 if ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] > 0)].size > 0 \
                 else h2lu_wall 
-        h2ld_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)]))-1)/(self.board_size-1) \
+        h2ld_body = (np.min(np.abs(ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)]))-1)*norm_board \
                 if ddist_body[(ddist_body[:,0] > 0) & (ddist_body[:,1] < 0)].size > 0 \
                 else h2ld_wall        
         
