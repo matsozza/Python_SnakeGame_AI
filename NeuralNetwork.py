@@ -6,18 +6,26 @@ import copy
 class NeuralNetwork:
     def __init__(self) -> None:
         # Initialize weights and biases randomly within a certain range
-        self.network_topology = [6,12,3]
+        self.network_topology = [8,4,3]
+        self.network_fcn = [None, NeuralNetwork.softmax, NeuralNetwork.relu]
         self.weights = []
         self.biases = []
+        self.layers = []
         
         num_layers = len(self.network_topology)
+        
+        # Initialize neurons and biases
+        self.layers.append(np.zeros(self.network_topology[0]))
+        for layer_num in range(1,num_layers):
+            b= np.random.uniform(-1, 1, self.network_topology[layer_num])
+            self.biases.append(b) 
+            self.layers.append(b) # Layer init. act is the bias
+        
+        # Initialize weights
         for layer_num in range(num_layers-1):
-                w= np.random.uniform(-0.1, 0.1,
-                    [self.network_topology[layer_num], self.network_topology[layer_num+1]])
-                b= np.random.uniform(-0.1, 0.1, 
-                    self.network_topology[layer_num+1])
+                w= np.random.uniform(-1, 1, [self.network_topology[layer_num], self.network_topology[layer_num+1]])
                 self.weights.append(w)
-                self.biases.append(b)      
+     
 
     def mutate(self, rate_w, size_w, rate_b, size_b):
         # Loop through each layer in the neural network
@@ -28,7 +36,7 @@ class NeuralNetwork:
             
             # Apply mutation and clip values between -1 +1
             self.weights[idx][selected_weights] += mutation_offset_weights[selected_weights]
-            self.weights[idx] = np.clip(self.weights[idx], -1, 1)  
+            #self.weights[idx] = np.clip(self.weights[idx], -1, 1)  
 
             # Create vector of mutation for biases
             selected_biases = np.random.binomial(1, rate_b, size=self.biases[idx].shape).astype(bool)
@@ -36,7 +44,7 @@ class NeuralNetwork:
             
             # Apply mutation and clip values between -1 +1
             self.biases[idx][selected_biases] += mutation_offset_biases[selected_biases]
-            self.biases[idx] = np.clip(self.biases[idx], -1, 1)  
+            #self.biases[idx] = np.clip(self.biases[idx], -1, 1)  
 
     def softmax(x):
         e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
@@ -49,9 +57,16 @@ class NeuralNetwork:
         return np.tanh(x)
 
     def calculate(self, inputs):
-        l0 = NeuralNetwork.relu((inputs @ self.weights[0]) + self.biases[0])
-        l1 =  NeuralNetwork.softmax((l0 @ self.weights[1])  + self.biases[1])
-        return np.argmax(l1, axis = 0)
+        # Feed the first layer with inputs - no activation fcn, no biases
+        self.layers[0] = inputs
+        
+        # Do the forward propagation with weights, biases and actv. function
+        num_layers = len(self.network_topology)
+        for layer_num in range(1,num_layers):
+            self.layers[layer_num] = self.network_fcn[layer_num]((self.layers[layer_num-1] @ self.weights[layer_num-1]) + self.biases[layer_num-1])
+
+        # Return idx. of biggest value in the output layer (one-hot)
+        return np.argmax(self.layers[-1], axis = 0)
 
     def set_weights_biases(self,weights,biases):
         self.weights = weights
@@ -82,5 +97,5 @@ class NeuralNetwork:
     def load_weights_biases(self, file_path):
         """Load the weights and biases from a .npz file."""
         data = np.load(file_path, allow_pickle=True)
-        self.weights = list(data['weights'][0])
-        self.biases = list(data['biases'][0])
+        self.weights = list(data['weights'])
+        self.biases = list(data['biases'])
