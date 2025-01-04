@@ -15,7 +15,7 @@ class SnakeBoard:
     BLUE = pygame.Color(0, 0, 255)
     YELLOW = pygame.Color(255, 255,0)
 
-    G_SPD = 5 # game speed
+    G_SPD = 100 # game speed
 
     # Window size
     WRES = 15
@@ -27,7 +27,7 @@ class SnakeBoard:
 #region ----- Methods -----
 
     def __init__(self, games, visuals=False):
-        print("SnakeBoard instance created.")
+        #print("SnakeBoard instance created.")
         self.games = games
         self.board_size = games[0].board_size
         self.visuals = visuals
