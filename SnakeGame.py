@@ -36,7 +36,7 @@ class SnakeGame:
         self.score = 0 # initial score
         self.w_score = 0 # weighed score
         self.game_over = False
-        self.timeout = (self.board_size * self.board_size)
+        self.timeout = (2*self.board_size*self.board_size)
 
     def step_game(self, req_dir = "IDLE"):
         # Run game and update state / score if not game over
@@ -72,6 +72,8 @@ class SnakeGame:
             dx = -dy_std
             dy = dx_std
         food_angle = round((math.atan2(dy,dx) / (math.pi)),2)
+        
+        #food_angle = round(food_angle/0.25) * 0.25 # Truncate
 
         # ----- Calc hazards distance -----          
         # Distance to walls - Absolute coordinates (don't care about snake's direction)
@@ -138,26 +140,42 @@ class SnakeGame:
             haz_right = h2d_body #Abs Dw
             haz_ahead_left = h2ru_body
             haz_ahead_right = h2rd_body
+            haz_behind_left = h2lu_body
+            haz_behind_right = h2ld_body
         elif self.direction == "UP":
             haz_ahead = h2u_body
             haz_left = h2l_body 
             haz_right = h2r_body 
             haz_ahead_left = h2lu_body
             haz_ahead_right = h2ru_body
+            haz_behind_left = h2ld_body
+            haz_behind_right = h2rd_body
         elif self.direction == "LEFT":
             haz_ahead = h2l_body 
             haz_left = h2d_body 
             haz_right = h2u_body 
             haz_ahead_left = h2ld_body
             haz_ahead_right = h2lu_body
+            haz_behind_left = h2rd_body
+            haz_behind_right = h2ru_body
         elif self.direction == "DOWN":
             haz_ahead = h2d_body 
             haz_left = h2r_body 
             haz_right = h2l_body 
             haz_ahead_left = h2rd_body
             haz_ahead_right = h2ld_body
-        
-        return [food_angle, haz_ahead, haz_left, haz_right, haz_ahead_left, haz_ahead_right]
+            haz_behind_left = h2ru_body
+            haz_behind_right = h2lu_body
+       
+        return [+1 if food_angle>0 else (0 if np.abs(food_angle) < 1e-2 else -1), 
+                -1 if np.abs(food_angle) > 0.501 else (0 if np.abs(food_angle) > 0.499 and np.abs(food_angle) < 0.501 else 1),
+                +1 if haz_ahead==0 else 0,
+                +1 if haz_left==0 else 0,
+                +1 if haz_right==0 else 0, 
+                +1 if haz_ahead_left==0 else 0, 
+                +1 if haz_ahead_right==0 else 0, 
+                +1 if haz_behind_left==0 else 0, 
+                +1 if haz_behind_right==0 else 0]
 
     def _update_game_state(self, req_dir):
         # Input validation  - If number provided, map to textual
@@ -221,7 +239,7 @@ class SnakeGame:
                 # TODO: Unreachable - just placed here for catching any unpredicted condition.
                 print("No available position for food insertion") 
 
-            self.timeout = (self.board_size * self.board_size)
+            self.timeout = (2*self.board_size*self.board_size)
         else:
             #just move snake
             self.body_snake.pop()
